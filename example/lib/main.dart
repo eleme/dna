@@ -29,6 +29,17 @@ class _MyAppState extends State<MyApp> {
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }
+    try {
+      ObjCContext context = ObjCContext();
+      NativeVar currentDevice = context.newNativeVar('currentDevice');
+      context.invoke(object: NativeClass('UIDevice'), method: 'currentDevice', args: null, ret: currentDevice);
+      NativeVar systemVersion = context.newNativeVar('systemVersion');
+      context.invoke(object: currentDevice, method: 'systemVersion', args: null, ret: systemVersion);
+      context.ret = systemVersion;
+      platformVersion = await context.execute();
+    } on PlatformException {
+      platformVersion = 'Failed to get platform version.';
+    }
 
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling

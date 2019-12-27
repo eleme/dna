@@ -7,6 +7,11 @@ class Dna {
   static const MethodChannel _channel =
       const MethodChannel('dna');
 
+  static Future<String> get platformVersion async {
+    final String version = await _channel.invokeMethod('getPlatformVersion');
+    return version;
+  }
+  
   static Future<Object> executeNativeContext(NativeContext context) async {
     return await _channel.invokeMethod('executeNativeContext', context.toJSON());
   }
@@ -15,7 +20,7 @@ class Dna {
 ////////////////////////////////////////////////////////////////////////////
 class NativeObject extends Object {
   Map toJSON () {
-    return {'NativeObject':{}};
+    return {};
   }
 }
 
@@ -25,7 +30,7 @@ class NativeClass extends NativeObject {
   NativeClass(this.clsName);
 
   Map toJSON () {
-    return {'NativeClass':{'clsName':clsName}};
+    return {'clsName':clsName};
   }
 }
 
@@ -35,7 +40,7 @@ class NativeVar extends NativeObject {
   NativeVar(this.varName);
 
   Map toJSON () {
-    return {'NativeVar':{'varName':varName}};
+    return {'varName':varName};
   }
 }
 
@@ -49,36 +54,40 @@ class NativeInvocation extends NativeObject {
   NativeInvocation(this.object, this.method, this.args, this.ret);
 
   Map toJSON () {
-    return {'NativeInvocation':{'object':object.toJSON(), 'method':method, 'args':args, 'ret':ret.toJSON()}};
+    return {'object':(object != null ? object.toJSON() : null), 'method':method, 'args':args, 'ret':(ret != null ? ret.toJSON() : null)};
   }
 }
 
 
 class NativeContext {
-  List _invocations = List();
+  List _invocationNodes = List();
   List _vars = List();
+  NativeVar ret;
+
   void invoke({NativeObject object, String method, List args, NativeVar ret}) {
-    NativeInvocation node = NativeInvocation(object, method, args, ret);
-    _invocations.add(node);
+    NativeInvocation invacation = NativeInvocation(object, method, args, ret);
+    _invocationNodes.add(invacation);
   }
 
   NativeVar newNativeVar(String varName) {
     NativeVar object = NativeVar(varName);
     _vars.add(object); 
+    return object;
   }
 
+
   Map toJSON() {
-    List invocationsJSON = List();
-    for (NativeInvocation invocation in _invocations) {
-      invocationsJSON.add(invocation.toJSON());
+    List invocationNodesJSON = List();
+    for (NativeInvocation invocation in _invocationNodes) {
+      invocationNodesJSON.add(invocation.toJSON());
     }
 
     List varsJSON = List();
-    for (NativeVar object in varsJSON) {
+    for (NativeVar object in _vars) {
       varsJSON.add(object.toJSON());
     }
 
-    return {'NativeContext':{'_invocations':invocationsJSON, '_vars':varsJSON}};
+    return {'_invocationNodes':invocationNodesJSON, '_vars':varsJSON, 'ret':(ret != null ? ret.toJSON() : null)};
   }
 
   bool canExecute() {
