@@ -14,38 +14,52 @@ class Dna {
 
 ////////////////////////////////////////////////////////////////////////////
 class NativeObject extends Object {
-
+  Map toJSON () {
+    return {'NativeObject':{}};
+  }
 }
 
 
 class NativeClass extends NativeObject {
   final String clsName;
   NativeClass(this.clsName);
+
+  Map toJSON () {
+    return {'NativeClass':{'clsName':clsName}};
+  }
 }
 
 
 class NativeVar extends NativeObject {
   String varName;
   NativeVar(this.varName);
+
+  Map toJSON () {
+    return {'NativeVar':{'varName':varName}};
+  }
 }
 
 
-class NativeInvocation {
+class NativeInvocation extends NativeObject {
   NativeObject object;
   String method;
   List args;
   NativeVar ret;
   
   NativeInvocation(this.object, this.method, this.args, this.ret);
+
+  Map toJSON () {
+    return {'NativeInvocation':{'object':object.toJSON(), 'method':method, 'args':args, 'ret':ret.toJSON()}};
+  }
 }
 
 
 class NativeContext {
-  List _invocationNodes = List();
+  List _invocations = List();
   List _vars = List();
   void invoke({NativeObject object, String method, List args, NativeVar ret}) {
     NativeInvocation node = NativeInvocation(object, method, args, ret);
-    _invocationNodes.add(node);
+    _invocations.add(node);
   }
 
   NativeVar newNativeVar(String varName) {
@@ -54,7 +68,17 @@ class NativeContext {
   }
 
   Map toJSON() {
+    List invocationsJSON = List();
+    for (NativeInvocation invocation in _invocations) {
+      invocationsJSON.add(invocation.toJSON());
+    }
 
+    List varsJSON = List();
+    for (NativeVar object in varsJSON) {
+      varsJSON.add(object.toJSON());
+    }
+
+    return {'NativeContext':{'_invocations':invocationsJSON, '_vars':varsJSON}};
   }
 
   bool canExecute() {
