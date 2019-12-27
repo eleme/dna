@@ -36,7 +36,7 @@ class NativeClass extends NativeObject {
 
 
 class NativeVar extends NativeObject {
-  String varName;
+  final String varName;
   NativeVar(this.varName);
 
   Map toJSON () {
@@ -46,10 +46,10 @@ class NativeVar extends NativeObject {
 
 
 class NativeInvocation extends NativeObject {
-  NativeObject object;
-  String method;
-  List args;
-  NativeVar ret;
+  final NativeObject object;
+  final String method;
+  final List args;
+  final NativeVar ret;
   
   NativeInvocation(this.object, this.method, this.args, this.ret);
 
@@ -60,17 +60,27 @@ class NativeInvocation extends NativeObject {
 
 
 class NativeContext {
-  List _invocationNodes = List();
-  List _vars = List();
+  final List _invocationNodes = List();
+  final List _vars = List();
   NativeVar ret;
+
+  String _randomString() {
+    String alphabet = 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM';
+    int strlenght = 8; 
+    String randomString = '';
+    for (var i = 0; i < strlenght; i++) {
+      randomString = randomString + alphabet[Random().nextInt(alphabet.length)];
+    }
+    return randomString;
+  }
 
   void invoke({NativeObject object, String method, List args, NativeVar ret}) {
     NativeInvocation invacation = NativeInvocation(object, method, args, ret);
     _invocationNodes.add(invacation);
   }
 
-  NativeVar newNativeVar(String varName) {
-    NativeVar object = NativeVar(varName);
+  NativeVar newNativeVar() {
+    NativeVar object = NativeVar('varName_' + _randomString());
     _vars.add(object); 
     return object;
   }

@@ -1,4 +1,5 @@
 #import "DnaPlugin.h"
+#import <dna/NSObject+dna_runtime.h>
 
 @implementation DnaPlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
@@ -46,22 +47,15 @@
             args = invocationJSON[@"args"];
         }
         
-        NSMethodSignature *signature = [object methodSignatureForSelector:sel];
-        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
-        invocation.target = object;
-        invocation.selector = sel;
-        
-        [invocation invoke];
-        if (signature.methodReturnLength > 0) {
-            NSString *retName = invocationJSON[@"ret"][@"varName"];
-            id retValue = vars[retName];
-            [invocation getReturnValue:&retValue];
+        NSString *retName = invocationJSON[@"ret"][@"varName"];
+        id retValue = vars[retName];
+        retValue = [object dna_performSelector:sel withObjects:args];
+        if (retValue) {
             vars[retName] = retValue;
-            NSLog(@"xxx");
         }
     }
     
-    if (context[@"ret"]) {
+    if (context[@"ret"] != NSNull.null) {
         NSString *retName = context[@"ret"][@"varName"];
         ret = vars[retName];
     }
@@ -72,3 +66,39 @@
 }
 
 @end
+
+//{
+//    "_invocationNodes" =     (
+//                {
+//            args = "<null>";
+//            method = currentDevice;
+//            object =             {
+//                clsName = UIDevice;
+//            };
+//            ret =             {
+//                varName = device;
+//            };
+//        },
+//                {
+//            args = "<null>";
+//            method = systemVersion;
+//            object =             {
+//                varName = device;
+//            };
+//            ret =             {
+//                varName = systemVersion;
+//            };
+//        }
+//    );
+//    "_vars" =     (
+//                {
+//            varName = device;
+//        },
+//                {
+//            varName = systemVersion;
+//        }
+//    );
+//    ret =     {
+//        varName = systemVersion;
+//    };
+//}
