@@ -18,17 +18,30 @@ class Dna {
 }
 
 ////////////////////////////////////////////////////////////////////////////
+
 class NativeObject extends Object {
+  NativeContext context;
+
   Map toJSON () {
     return {};
+  }
+
+  NativeVar invoke({String method, List args}) {
+    NativeVar value = context.newNativeVar();
+    context.invoke(object: this, method: method, args: args, returnVar: value);
+    return value;
   }
 }
 
 
 class NativeClass extends NativeObject {
-  final String clsName;
-  NativeClass(this.clsName);
+  String clsName;
 
+  NativeClass.fromString(NativeContext context, String clsName) {
+    this.context = context;
+    this.clsName = clsName;
+  }
+   
   Map toJSON () {
     return {'clsName':clsName};
   }
@@ -36,33 +49,39 @@ class NativeClass extends NativeObject {
 
 
 class NativeVar extends NativeObject {
-  final String varName;
-  NativeVar(this.varName);
+  String varId;
 
+  NativeVar.withId(NativeContext context, String varId) {
+    this.context = context;
+    this.varId = varId;
+  }
   Map toJSON () {
-    return {'varName':varName};
+    return {'varId': varId};
   }
 }
 
+////////////////////////////////////////////////////////////////////////////
 
-class NativeInvocation extends NativeObject {
+class NativeInvocation {
   final NativeObject object;
   final String method;
   final List args;
-  final NativeVar ret;
+  final NativeVar returnVar;
   
-  NativeInvocation(this.object, this.method, this.args, this.ret);
+  NativeInvocation(this.object, this.method, this.args, this.returnVar);
 
   Map toJSON () {
-    return {'object':(object != null ? object.toJSON() : null), 'method':method, 'args':args, 'ret':(ret != null ? ret.toJSON() : null)};
+    return {'object':(object != null ? object.toJSON() : null), 'method':method, 'args':args, 'returnVar':(returnVar != null ? returnVar.toJSON() : null)};
   }
 }
+
+////////////////////////////////////////////////////////////////////////////
 
 
 class NativeContext {
   final List _invocationNodes = List();
   final List _vars = List();
-  NativeVar ret;
+  NativeVar returnVar;
 
   String _randomString() {
     String alphabet = 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM';
@@ -74,13 +93,18 @@ class NativeContext {
     return randomString;
   }
 
-  void invoke({NativeObject object, String method, List args, NativeVar ret}) {
-    NativeInvocation invacation = NativeInvocation(object, method, args, ret);
+  void invoke({NativeObject object, String method, List args, NativeVar returnVar}) {
+    NativeInvocation invacation = NativeInvocation(object, method, args, returnVar);
     _invocationNodes.add(invacation);
   }
 
+  NativeClass classFromString(String clsName) {
+    NativeClass cls = NativeClass.fromString(this, clsName);
+    return cls;
+  }
+
   NativeVar newNativeVar() {
-    NativeVar object = NativeVar('varName_' + _randomString());
+    NativeVar object = NativeVar.withId(this, 'varId_' + _randomString());
     _vars.add(object); 
     return object;
   }
@@ -97,7 +121,7 @@ class NativeContext {
       varsJSON.add(object.toJSON());
     }
 
-    return {'_invocationNodes':invocationNodesJSON, '_vars':varsJSON, 'ret':(ret != null ? ret.toJSON() : null)};
+    return {'_invocationNodes':invocationNodesJSON, '_vars':varsJSON, 'returnVar':(returnVar != null ? returnVar.toJSON() : null)};
   }
 
   bool canExecute() {

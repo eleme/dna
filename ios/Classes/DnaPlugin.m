@@ -23,10 +23,10 @@
 
 - (void)executeNativeContext:(NSDictionary *)context resultresult:(FlutterResult)result {
     NSMutableDictionary *vars = [NSMutableDictionary dictionary];
-    NSObject *ret = nil;
+    NSObject *returnVar = nil;
     
     for (NSDictionary *varJSON in context[@"_vars"]) {
-        [vars setObject:[NSObject new] forKey:varJSON[@"varName"]];
+        [vars setObject:[NSObject new] forKey:varJSON[@"varId"]];
     }
     
     for (NSDictionary *invocationJSON in context[@"_invocationNodes"]) {
@@ -34,8 +34,8 @@
         NSDictionary *objectJSON = invocationJSON[@"object"];
         if (objectJSON[@"clsName"]) {
             object = (NSObject *)NSClassFromString(objectJSON[@"clsName"]);
-        } else if (objectJSON[@"varName"]) {
-            object = vars[objectJSON[@"varName"]];
+        } else if (objectJSON[@"varId"]) {
+            object = vars[objectJSON[@"varId"]];
         } else {
             object = nil;
         }
@@ -47,58 +47,22 @@
             args = invocationJSON[@"args"];
         }
         
-        NSString *retName = invocationJSON[@"ret"][@"varName"];
-        id retValue = vars[retName];
-        retValue = [object dna_performSelector:sel withObjects:args];
-        if (retValue) {
-            vars[retName] = retValue;
+        NSString *returnVarName = invocationJSON[@"returnVar"][@"varId"];
+        id returnVarValue = vars[returnVarName];
+        returnVarValue = [object dna_performSelector:sel withObjects:args];
+        if (returnVarValue) {
+            vars[returnVarName] = returnVarValue;
         }
     }
     
-    if (context[@"ret"] != NSNull.null) {
-        NSString *retName = context[@"ret"][@"varName"];
-        ret = vars[retName];
+    if (context[@"returnVar"] != NSNull.null) {
+        NSString *returnVarName = context[@"returnVar"][@"varId"];
+        returnVar = vars[returnVarName];
     }
     
     if (result) {
-        result(ret);
+        result(returnVar);
     }
 }
 
 @end
-
-//{
-//    "_invocationNodes" =     (
-//                {
-//            args = "<null>";
-//            method = currentDevice;
-//            object =             {
-//                clsName = UIDevice;
-//            };
-//            ret =             {
-//                varName = device;
-//            };
-//        },
-//                {
-//            args = "<null>";
-//            method = systemVersion;
-//            object =             {
-//                varName = device;
-//            };
-//            ret =             {
-//                varName = systemVersion;
-//            };
-//        }
-//    );
-//    "_vars" =     (
-//                {
-//            varName = device;
-//        },
-//                {
-//            varName = systemVersion;
-//        }
-//    );
-//    ret =     {
-//        varName = systemVersion;
-//    };
-//}

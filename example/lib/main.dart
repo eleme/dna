@@ -41,11 +41,13 @@ class _MyAppState extends State<MyApp> {
 
       // dart 
       ObjCContext context = ObjCContext();
-      NativeVar device = context.newNativeVar();
-      context.invoke(object: NativeClass('UIDevice'), method: 'currentDevice', args: null, ret: device);
-      NativeVar version = context.newNativeVar();
-      context.invoke(object: device, method: 'systemVersion', args: null, ret: version);
-      context.ret = version;
+      // NativeVar device = context.newNativeVar();
+      // context.invoke(object: context.classFromString('UIDevice'), method: 'currentDevice', args: null, returnVar: device);
+      // NativeVar version = context.newNativeVar();
+      // context.invoke(object: device, method: 'systemVersion', args: null, returnVar: version);
+      // context.returnVar = version;
+
+      context.returnVar = context.classFromString('UIDevice').invoke(method: 'currentDevice').invoke(method: 'systemVersion');
       //
 
       /*
