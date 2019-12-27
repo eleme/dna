@@ -50,6 +50,7 @@
         NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
         invocation.target = object;
         invocation.selector = sel;
+        
         [invocation invoke];
         if (signature.methodReturnLength > 0) {
             NSString *retName = invocationJSON[@"ret"][@"varName"];
