@@ -49,7 +49,7 @@
         
         NSString *returnVarName = invocationJSON[@"returnVar"][@"varId"];
         id returnVarValue = vars[returnVarName];
-        returnVarValue = [object dna_performSelector:sel withObjects:args];
+        //TODO returnVarValue = [object dna_performSelector:sel withObjects:args];
         if (returnVarValue) {
             vars[returnVarName] = returnVarValue;
         }
