@@ -1,5 +1,5 @@
 #import "DnaPlugin.h"
-#import <dna/NSObject+dna_runtime.h>
+#import <dna/NSObject+DnaRuntime.h>
 
 @implementation DnaPlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
@@ -49,7 +49,7 @@
         
         NSString *returnVarName = invocationJSON[@"returnVar"][@"varId"];
         id returnVarValue = vars[returnVarName];
-        //TODO returnVarValue = [object dna_performSelector:sel withObjects:args];
+        returnVarValue = [object dna_performSelector:sel withObjects:args];
         if (returnVarValue) {
             vars[returnVarName] = returnVarValue;
         }
