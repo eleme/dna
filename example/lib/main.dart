@@ -31,7 +31,8 @@ class _MyAppState extends State<MyApp> {
     }
     try {
       ObjCContext context = ObjCContext();
-      context.classFromString('UIDevice').invoke(method: 'currentDevice').invoke(method: 'systemVersion');
+      // NativeVar version = context.classFromString('UIDevice').invoke(method: 'currentDevice').invoke(method: 'systemVersion');
+      // context.classFromString('NSString').invoke(method: 'stringWithString:', args: ['IOS-']).invoke(method:'stringByAppendingString:',args: [version]);
       platformVersion = await context.execute();
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';

@@ -1,11 +1,17 @@
 PODS:
   - dna (0.0.1):
     - Flutter
+    - YYModel
   - Flutter (1.0.0)
+  - YYModel (1.0.4)
 
 DEPENDENCIES:
   - dna (from `.symlinks/plugins/dna/ios`)
   - Flutter (from `.symlinks/flutter/ios`)
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - YYModel
 
 EXTERNAL SOURCES:
   dna:
@@ -14,8 +20,9 @@ EXTERNAL SOURCES:
     :path: ".symlinks/flutter/ios"
 
 SPEC CHECKSUMS:
-  dna: 2fae526321f36ff238aed007c6a10c2b5c7b6dbc
+  dna: de6646a5384fbc67918f4d1660673bdba824dae7
   Flutter: 9d0fac939486c9aba2809b7982dfdbb47a7b0296
+  YYModel: 2a7fdd96aaa4b86a824e26d0c517de8928c04b30
 
 PODFILE CHECKSUM: 3389836f37640698630b8f0670315d626d5f1469
 

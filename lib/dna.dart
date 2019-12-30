@@ -18,12 +18,13 @@ class Dna {
 }
 
 ////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
 
 class NativeObject extends Object {
-  NativeContext context;
-
+  final NativeContext context;
+  NativeObject(this.context);
   Map toJSON () {
-    return {};
+    return Map();
   }
 
   NativeVar invoke({String method, List args}) {
@@ -34,26 +35,9 @@ class NativeObject extends Object {
 }
 
 
-class NativeClass extends NativeObject {
-  String clsName;
-
-  NativeClass.fromString(NativeContext context, String clsName) {
-    this.context = context;
-    this.clsName = clsName;
-  }
-   
-  Map toJSON () {
-    Map json = Map();
-    if (clsName != null) {
-      json['clsName'] = clsName;
-    }
-    return json;
-  }
-}
-
-
+//////////////////
 class NativeVar extends NativeObject {
-  String varId;
+  String _varId;
 
   String _randomString() {
     String alphabet = 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM';
@@ -65,20 +49,55 @@ class NativeVar extends NativeObject {
     return randomString;
   }
 
-  NativeVar.init(NativeContext context) {
-    this.context = context;
-    this.varId = 'varId_' + _randomString();
+  NativeVar(NativeContext context) : super(context) {
+    _varId = 'varId_' + _randomString();
   }
   
   Map toJSON () {
-    Map json = Map();
-    if (varId != null) {
-      json['varId'] = varId;
+    Map json = super.toJSON();
+    if (_varId != null) {
+      json['_varId'] = _varId;
     }
     return json;
   }
 }
 
+
+//////////////////
+class NativeClass extends NativeVar {
+  final String clsName;
+  NativeClass(NativeContext context, this.clsName) : super(context);
+   
+  Map toJSON () {
+    Map json = super.toJSON();
+    if (clsName != null) {
+      json['clsName'] = clsName;
+    }
+    return json;
+  }
+}
+
+
+//////////////////
+class NativeJSONVar extends NativeVar {
+  final Map json;
+  final String cls;
+  NativeJSONVar(NativeContext context, this.json, this.cls) : super(context);
+
+  Map toJSON () {
+    Map json = super.toJSON();
+    if (this.json != null) {
+      json['json'] = this.json;
+    }
+
+    if (cls != null) {
+      json['cls'] = cls;
+    }
+    return json;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
 class NativeInvocation {
@@ -100,7 +119,15 @@ class NativeInvocation {
     }
 
     if (args != null) {
-      json['args'] = args;
+      List argsJSON = List();
+      for (var arg in args) {
+        if (arg is NativeObject) {
+          argsJSON.add(arg.toJSON());
+        } else {
+          argsJSON.add(arg);
+        }
+      }
+      json['args'] = argsJSON;
     }
 
     if (returnVar != null) {
@@ -111,10 +138,12 @@ class NativeInvocation {
 }
 
 ////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
 
 
 class NativeContext {
   final List _invocationNodes = List();
+  final List _jsonVars = List();
   NativeVar returnVar;
 
   void invoke({NativeObject object, String method, List args, NativeVar returnVar}) {
@@ -123,24 +152,37 @@ class NativeContext {
   }
 
   NativeClass classFromString(String clsName) {
-    NativeClass cls = NativeClass.fromString(this, clsName);
+    NativeClass cls = NativeClass(this, clsName);
     return cls;
   }
 
   NativeVar newNativeVar() {
-    NativeVar object = NativeVar.init(this);
+    NativeVar object = NativeVar(this);
+    return object;
+  }
+
+  NativeJSONVar newNativeJSONVar(Map json, String cls) {
+    NativeVar object = NativeJSONVar(this, json, cls);
+    _jsonVars.add(object);
     return object;
   }
 
 
   Map toJSON() {
     List invocationNodesJSON = List();
-    for (NativeInvocation invocation in _invocationNodes) {
+    for (var invocation in _invocationNodes) {
       invocationNodesJSON.add(invocation.toJSON());
+    }
+
+    List jsonVarsJSON = List();
+    for (var jsonVar in _jsonVars) {
+      jsonVarsJSON.add(jsonVar.toJSON());
     }
 
     Map json = Map();
     json['_invocationNodes'] = invocationNodesJSON;
+    json['_jsonVars'] = jsonVarsJSON;
+
     if (returnVar != null) {
       json['returnVar'] = returnVar.toJSON();
     }
@@ -161,13 +203,14 @@ class NativeContext {
 }
 
 
+//////////////////
 class ObjCContext extends NativeContext {
   bool canExecute() {
     return Platform.isIOS;
   }
 }
 
-
+//////////////////
 class JAVAContext extends NativeContext {
   bool canExecute() {
     return Platform.isAndroid;
