@@ -47,9 +47,8 @@ class _MyAppState extends State<MyApp> {
       // context.invoke(object: device, method: 'systemVersion', args: null, returnVar: version);
       // context.returnVar = version;
 
-      context.returnVar = context.classFromString('UIDevice').invoke(method: 'currentDevice').invoke(method: 'systemVersion');
+      context.classFromString('UIDevice').invoke(method: 'currentDevice').invoke(method: 'systemVersion');
       //
-
       /*
       JAVAContext *context
       */
