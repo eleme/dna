@@ -43,7 +43,11 @@ class NativeClass extends NativeObject {
   }
    
   Map toJSON () {
-    return {'clsName':clsName};
+    Map json = Map();
+    if (clsName != null) {
+      json['clsName'] = clsName;
+    }
+    return json;
   }
 }
 
@@ -51,12 +55,27 @@ class NativeClass extends NativeObject {
 class NativeVar extends NativeObject {
   String varId;
 
-  NativeVar.withId(NativeContext context, String varId) {
-    this.context = context;
-    this.varId = varId;
+  String _randomString() {
+    String alphabet = 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM';
+    int strlenght = 8; 
+    String randomString = '';
+    for (var i = 0; i < strlenght; i++) {
+      randomString = randomString + alphabet[Random().nextInt(alphabet.length)];
+    }
+    return randomString;
   }
+
+  NativeVar.init(NativeContext context) {
+    this.context = context;
+    this.varId = 'varId_' + _randomString();
+  }
+  
   Map toJSON () {
-    return {'varId': varId};
+    Map json = Map();
+    if (varId != null) {
+      json['varId'] = varId;
+    }
+    return json;
   }
 }
 
@@ -71,7 +90,23 @@ class NativeInvocation {
   NativeInvocation(this.object, this.method, this.args, this.returnVar);
 
   Map toJSON () {
-    return {'object':(object != null ? object.toJSON() : null), 'method':method, 'args':args, 'returnVar':(returnVar != null ? returnVar.toJSON() : null)};
+    Map json = Map();
+    if (object != null) {
+      json['object'] = object.toJSON();
+    }
+
+    if (method != null) {
+      json['method'] = method;
+    }
+
+    if (args != null) {
+      json['args'] = args;
+    }
+
+    if (returnVar != null) {
+      json['returnVar'] = returnVar.toJSON();
+    }
+    return json;  
   }
 }
 
@@ -80,18 +115,7 @@ class NativeInvocation {
 
 class NativeContext {
   final List _invocationNodes = List();
-  final List _vars = List();
   NativeVar returnVar;
-
-  String _randomString() {
-    String alphabet = 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM';
-    int strlenght = 8; 
-    String randomString = '';
-    for (var i = 0; i < strlenght; i++) {
-      randomString = randomString + alphabet[Random().nextInt(alphabet.length)];
-    }
-    return randomString;
-  }
 
   void invoke({NativeObject object, String method, List args, NativeVar returnVar}) {
     NativeInvocation invacation = NativeInvocation(object, method, args, returnVar);
@@ -104,8 +128,7 @@ class NativeContext {
   }
 
   NativeVar newNativeVar() {
-    NativeVar object = NativeVar.withId(this, 'varId_' + _randomString());
-    _vars.add(object); 
+    NativeVar object = NativeVar.init(this);
     return object;
   }
 
@@ -116,12 +139,12 @@ class NativeContext {
       invocationNodesJSON.add(invocation.toJSON());
     }
 
-    List varsJSON = List();
-    for (NativeVar object in _vars) {
-      varsJSON.add(object.toJSON());
+    Map json = Map();
+    json['_invocationNodes'] = invocationNodesJSON;
+    if (returnVar != null) {
+      json['returnVar'] = returnVar.toJSON();
     }
-
-    return {'_invocationNodes':invocationNodesJSON, '_vars':varsJSON, 'returnVar':(returnVar != null ? returnVar.toJSON() : null)};
+    return json;
   }
 
   bool canExecute() {

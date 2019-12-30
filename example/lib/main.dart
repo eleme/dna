@@ -30,29 +30,8 @@ class _MyAppState extends State<MyApp> {
       platformVersion = 'Failed to get platform version.';
     }
     try {
-
-      // 调用ObjC
-      /*
-          id currentDevice;
-          currentDevice = [UIDevice currentDevice]
-          id systemVersion;
-          systemVersion = [currentDevice systemVersion];
-      */
-
-      // dart 
       ObjCContext context = ObjCContext();
-      // NativeVar device = context.newNativeVar();
-      // context.invoke(object: context.classFromString('UIDevice'), method: 'currentDevice', args: null, returnVar: device);
-      // NativeVar version = context.newNativeVar();
-      // context.invoke(object: device, method: 'systemVersion', args: null, returnVar: version);
-      // context.returnVar = version;
-
       context.classFromString('UIDevice').invoke(method: 'currentDevice').invoke(method: 'systemVersion');
-      //
-      /*
-      JAVAContext *context
-      */
-
       platformVersion = await context.execute();
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';

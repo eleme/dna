@@ -30,33 +30,22 @@
 //                clsName = UIDevice;
 //            };
 //            returnVar =             {
-//                varId = "varId_vxgCygex";
+//                varId = "varId_zfBMuvQS";
 //            };
 //        },
 //                {
 //            args = "<null>";
 //            method = systemVersion;
 //            object =             {
-//                varId = "varId_vxgCygex";
+//                varId = "varId_zfBMuvQS";
 //            };
 //            returnVar =             {
-//                varId = "varId_eTkywOHI";
+//                varId = "varId_wPhHyxin";
 //            };
 //        }
 //    );
-//    "_vars" =     (
-//                {
-//            varId = "varId_vxgCygex";
-//        },
-//                {
-//            varId = "varId_eTkywOHI";
-//        }
-//    );
-//    returnVar =     {
-//        varId = "varId_eTkywOHI";
-//    };
+//    returnVar = "<null>";
 //}
-
 NSString * const dna_invocationNodes = @"_invocationNodes";
 NSString * const dna_object = @"object";
 NSString * const dna_clsName = @"clsName";
