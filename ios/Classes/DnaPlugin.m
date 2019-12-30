@@ -23,11 +23,10 @@
 
 
 
-NSString * const dna_varId = @"_varId";
+NSString * const dna_objectId = @"_objectId";
 NSString * const dna_clsName = @"clsName";
 
-
-NSString * const dna_jsonVars = @"_jsonVars";
+NSString * const dna_objectJSONWrappers = @"_objectJSONWrappers";
 NSString * const dna_json = @"json";
 NSString * const dna_cls = @"cls";
 
@@ -39,58 +38,60 @@ NSString * const dna_args = @"args";
 NSString * const dna_returnVar = @"returnVar";
 
 - (void)executeNativeContext:(NSDictionary *)context result:(FlutterResult)result {
-    // key : _varId, value: object
-    NSMutableDictionary<NSString *, id> *varsInContextMap = [NSMutableDictionary dictionary];
+    // key : _objectId, value: object
+    NSMutableDictionary<NSString *, id> *objectsInContextMap = [NSMutableDictionary dictionary];
     
-    // 根据json和类解析为对象，以_varId为键，加入到varsInContextMap中
-    NSArray *_jsonVarsJSON = context[dna_jsonVars];
-    for (NSDictionary *jsonVarJSON in _jsonVarsJSON) {
-        NSDictionary *json = jsonVarJSON[dna_json];
-        NSString *cls = jsonVarJSON[dna_cls];
-        id jsonVar = [NSClassFromString(cls) yy_modelWithJSON:json];
-        if (jsonVar) {
-            NSString *varId = dna_getVarId(jsonVarJSON);
-            varsInContextMap[varId] = jsonVar;
+    // 直接根据objectJSONWrapper生成对象，以_objectId为键，加入到varsInContextMap中
+    NSArray *_objectJSONWrappers = context[dna_objectJSONWrappers];
+    for (NSDictionary *objectJSONWrapper in _objectJSONWrappers) {
+        NSDictionary *json = objectJSONWrapper[dna_json];
+        NSString *cls = objectJSONWrapper[dna_cls];
+        id object = [NSClassFromString(cls) yy_modelWithJSON:json];
+        if (object) {
+            NSString *objectId = dna_getObjectId(objectJSONWrapper);
+            objectsInContextMap[objectId] = object;
         }
     }
     
-    // 得到returnVar对应的_varId
-    NSDictionary *returnVarJSON = context[dna_returnVar];
-    BOOL hasSetReturnVar = dna_isAvailable(returnVarJSON);
-    NSString *returnVarId = nil;
-    if (hasSetReturnVar) {
-        returnVarId = dna_getVarId(returnVarJSON);
+    // 得到returnVar对应的_objectId
+    NSDictionary *returnVar = context[dna_returnVar];
+    BOOL hasReturnVarFlag = dna_isAvailable(returnVar);
+    NSString *returnVarObjectId = nil;
+    if (hasReturnVarFlag) {
+        returnVarObjectId = dna_getObjectId(returnVar);
     }
     
     // 陆续调用所有Invocation
-    NSArray *_invocationNodesJSON = context[dna_invocationNodes];
-    for (NSUInteger i = 0; i < _invocationNodesJSON.count; i++) {
-        NSDictionary *invocationJSON = _invocationNodesJSON[i];
+    NSArray *_invocationNodes = context[dna_invocationNodes];
+    for (NSUInteger i = 0; i < _invocationNodes.count; i++) {
+        NSDictionary *invocation = _invocationNodes[i];
         
         // 得到当前调用方法的对象，类或实例;
         NSObject *object = nil;
-        NSDictionary *objectJSON = invocationJSON[dna_object];
-        if (dna_isAvailable(objectJSON[dna_clsName])) {
-            // 根据类名获取到类
-            object = (NSObject *)NSClassFromString(objectJSON[dna_clsName]);
-        } else if (dna_isAvailable(dna_getVarId(objectJSON))) {
-            // 根据_varId得到实例
-            object = varsInContextMap[dna_getVarId(objectJSON)];
-        } else {
-            object = nil;
+        NSDictionary *objectJSON = invocation[dna_object];
+        if (dna_isAvailable(dna_getObjectId(objectJSON))) {
+            // 根据_objectId得到，可能是其他invocation的返回值 / 从objectJSONWrapper生成
+            object = objectsInContextMap[dna_getObjectId(objectJSON)];
+            if (!object && dna_isAvailable(objectJSON[dna_clsName])) {
+                // 根据类名获取到类对象，并加入到变量表里
+                object = (id)NSClassFromString(objectJSON[dna_clsName]);
+                if (object) {
+                    objectsInContextMap[dna_getObjectId(objectJSON)] = object;
+                }
+            }
         }
         
         // 获取当前selector
-        SEL sel = NSSelectorFromString(invocationJSON[dna_method]);
+        SEL sel = NSSelectorFromString(invocation[dna_method]);
         
         // 处理获得当前所有参数
-        NSArray *argsJSON = invocationJSON[dna_args];
+        NSArray *argsJSON = invocation[dna_args];
         NSMutableArray *args = [NSMutableArray array];
         if (dna_isAvailable(argsJSON)) {
             for (id arg in argsJSON) {
-                if ([arg isKindOfClass:NSDictionary.class] && dna_getVarId(arg)) {
-                    // 如果含有varId, 根据_varId得到实例
-                    id varInContext = varsInContextMap[dna_getVarId(arg)];
+                if ([arg isKindOfClass:NSDictionary.class] && dna_getObjectId(arg)) {
+                    // 如果含有varId, 根据_objectId得到实例
+                    id varInContext = objectsInContextMap[dna_getObjectId(arg)];
                     if (varInContext) {
                         [args addObject:varInContext];
                     }
@@ -101,30 +102,30 @@ NSString * const dna_returnVar = @"returnVar";
             }
         }
         
-        // 当前Invocation的返回值_varId;
-        NSString *invacationReturnVarId = dna_getVarId(invocationJSON[dna_returnVar]);
+        // 当前Invocation的返回值_objectId;
+        NSString *invacationReturnVarId = dna_getObjectId(invocation[dna_returnVar]);
         
         // 执行Invocation;
         id invocationReturnVar = [object dna_performSelector:sel withObjects:args];
         if (invocationReturnVar) {
-            // 当前invocation有返回值，把返回值 返回值_varId 加入到varsInContextMap中
-            varsInContextMap[invacationReturnVarId] = invocationReturnVar;
-            if (!hasSetReturnVar && (i == _invocationNodesJSON.count - 1)) {
-                // 如果context没有设置返回值_varId，以最后一个invocation的返回值_varId作为context 返回值_varId
-                returnVarId = invacationReturnVarId;
+            // 当前invocation有返回值，把返回值 返回值_objectId 加入到varsInContextMap中
+            objectsInContextMap[invacationReturnVarId] = invocationReturnVar;
+            if (!hasReturnVarFlag && (i == _invocationNodes.count - 1)) {
+                // 如果context没有设置返回值_objectId，以最后一个invocation的返回值_objectId作为context 返回值_objectId
+                returnVarObjectId = invacationReturnVarId;
             }
         }
     }
     
-    id returnVar = nil;
-    if (returnVarId) {
+    id returnValue = nil;
+    if (returnVarObjectId) {
         // 取得context的返回值
-        returnVar = varsInContextMap[returnVarId];
+        returnValue = objectsInContextMap[returnVarObjectId];
     }
     
     if (result) {
         // 回调给dart返回值
-        result(returnVar);
+        result(returnValue);
     }
 }
 
@@ -137,8 +138,8 @@ NS_INLINE BOOL dna_isAvailable(id arg) {
     return arg && ![arg isEqual:null];
 }
 
-NS_INLINE NSString *dna_getVarId(NSDictionary *nativeVarJSON) {
-    return nativeVarJSON[dna_varId];
+NS_INLINE NSString *dna_getObjectId(NSDictionary *nativeVarJSON) {
+    return nativeVarJSON[dna_objectId];
 }
 
 @end

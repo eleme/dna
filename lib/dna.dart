@@ -22,22 +22,7 @@ class Dna {
 
 class NativeObject extends Object {
   final NativeContext context;
-  NativeObject(this.context);
-  Map toJSON () {
-    return Map();
-  }
-
-  NativeVar invoke({String method, List args}) {
-    NativeVar value = context.newNativeVar();
-    context.invoke(object: this, method: method, args: args, returnVar: value);
-    return value;
-  }
-}
-
-
-//////////////////
-class NativeVar extends NativeObject {
-  String _varId;
+  String _objectId;
 
   String _randomString() {
     String alphabet = 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM';
@@ -49,22 +34,27 @@ class NativeVar extends NativeObject {
     return randomString;
   }
 
-  NativeVar(NativeContext context) : super(context) {
-    _varId = 'varId_' + _randomString();
+  NativeObject(this.context) {
+     _objectId = '_objectId_' + _randomString();
   }
-  
+
   Map toJSON () {
-    Map json = super.toJSON();
-    if (_varId != null) {
-      json['_varId'] = _varId;
+    Map json = Map();
+    if (_objectId != null) {
+      json['_objectId'] = _objectId;
     }
     return json;
   }
+
+  NativeObject invoke({String method, List args}) {
+    NativeObject value = context.newNativeObject();
+    context.invoke(object: this, method: method, args: args, returnVar: value);
+    return value;
+  }
 }
 
-
 //////////////////
-class NativeClass extends NativeVar {
+class NativeClass extends NativeObject {
   final String clsName;
   NativeClass(NativeContext context, this.clsName) : super(context);
    
@@ -77,12 +67,11 @@ class NativeClass extends NativeVar {
   }
 }
 
-
 //////////////////
-class NativeJSONVar extends NativeVar {
+class NativeObjectJSONWrapper extends NativeObject {
   final Map json;
   final String cls;
-  NativeJSONVar(NativeContext context, this.json, this.cls) : super(context);
+  NativeObjectJSONWrapper(NativeContext context, this.json, this.cls) : super(context);
 
   Map toJSON () {
     Map json = super.toJSON();
@@ -104,7 +93,7 @@ class NativeInvocation {
   final NativeObject object;
   final String method;
   final List args;
-  final NativeVar returnVar;
+  final NativeObject returnVar;
   
   NativeInvocation(this.object, this.method, this.args, this.returnVar);
 
@@ -143,27 +132,27 @@ class NativeInvocation {
 
 class NativeContext {
   final List _invocationNodes = List();
-  final List _jsonVars = List();
-  NativeVar returnVar;
+  final List _objectJSONWrappers = List();
+  NativeObject returnVar;
 
-  void invoke({NativeObject object, String method, List args, NativeVar returnVar}) {
+  void invoke({NativeObject object, String method, List args, NativeObject returnVar}) {
     NativeInvocation invacation = NativeInvocation(object, method, args, returnVar);
     _invocationNodes.add(invacation);
   }
 
-  NativeClass classFromString(String clsName) {
+  NativeObject classFromString(String clsName) {
     NativeClass cls = NativeClass(this, clsName);
     return cls;
   }
 
-  NativeVar newNativeVar() {
-    NativeVar object = NativeVar(this);
+  NativeObject newNativeObject() {
+    NativeObject object = NativeObject(this);
     return object;
   }
 
-  NativeJSONVar newNativeJSONVar(Map json, String cls) {
-    NativeVar object = NativeJSONVar(this, json, cls);
-    _jsonVars.add(object);
+  NativeObject newNativeObjectFromJSON(Map json, String cls) {
+    NativeObject object = NativeObjectJSONWrapper(this, json, cls);
+    _objectJSONWrappers.add(object);
     return object;
   }
 
@@ -174,14 +163,14 @@ class NativeContext {
       invocationNodesJSON.add(invocation.toJSON());
     }
 
-    List jsonVarsJSON = List();
-    for (var jsonVar in _jsonVars) {
-      jsonVarsJSON.add(jsonVar.toJSON());
+    List objectJSONWrappersJSON = List();
+    for (var jsonVar in _objectJSONWrappers) {
+      objectJSONWrappersJSON.add(jsonVar.toJSON());
     }
 
     Map json = Map();
     json['_invocationNodes'] = invocationNodesJSON;
-    json['_jsonVars'] = jsonVarsJSON;
+    json['_objectJSONWrappers'] = objectJSONWrappersJSON;
 
     if (returnVar != null) {
       json['returnVar'] = returnVar.toJSON();
