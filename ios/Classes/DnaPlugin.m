@@ -2,6 +2,23 @@
 #import <dna/NSObject+DnaRuntime.h>
 #import <YYModel/YYModel.h>
 
+//@interface ClassA : NSObject
+//@property (nonatomic) NSInteger a;
+//@property (nonatomic) NSInteger b;
+//@end
+//@implementation ClassA
+//@end
+//
+//@interface ClassB : NSObject
+//@property (nonatomic) NSInteger c;
+//@end
+//@implementation ClassB
+//
+//- (NSInteger)sum:(ClassA *)objectA {
+//    return self.c + objectA.a + objectA.b;
+//}
+//@end
+
 @implementation DnaPlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
   FlutterMethodChannel* channel = [FlutterMethodChannel
@@ -103,16 +120,16 @@ NSString * const dna_returnVar = @"returnVar";
         }
         
         // 当前Invocation的返回值_objectId;
-        NSString *invacationReturnVarObjectId = dna_getObjectId(invocation[dna_returnVar]);
+        NSString *invocationReturnVarObjectId = dna_getObjectId(invocation[dna_returnVar]);
         
         // 执行Invocation;
         id invocationReturnVar = [object dna_performSelector:sel withObjects:absoluteArgs];
         if (invocationReturnVar) {
             // 当前invocation有返回值，把返回值 返回值_objectId 加入到objectsInContextMap中
-            objectsInContextMap[invacationReturnVarObjectId] = invocationReturnVar;
+            objectsInContextMap[invocationReturnVarObjectId] = invocationReturnVar;
             if (!hasContextReturnVarFlag && (i == _invocationNodes.count - 1)) {
                 // 如果context没有设置返回值_objectId，以最后一个invocation的返回值_objectId作为context 返回值_objectId
-                contextReturnVarObjectId = invacationReturnVarObjectId;
+                contextReturnVarObjectId = invocationReturnVarObjectId;
             }
         }
     }

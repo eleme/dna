@@ -33,6 +33,13 @@ class _MyAppState extends State<MyApp> {
       ObjCContext context = ObjCContext();
       NativeObject version = context.classFromString('UIDevice').invoke(method: 'currentDevice').invoke(method: 'systemVersion');
       context.classFromString('NSString').invoke(method: 'stringWithString:', args: ['IOS-']).invoke(method:'stringByAppendingString:',args: [version]);
+
+      // NativeObject objectA = context.newNativeObjectFromJSON({'a':1, 'b':2}, 'ClassA');
+      // NativeObject objectB = context.classFromString('ClassB').invoke(method: 'new');
+      // objectB.invoke(method: 'setC:',args: [3]);
+      // objectB.invoke(method: 'sum:',args: [objectA]);
+      
+      // int x =  await context.execute();
       platformVersion = await context.execute();
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
