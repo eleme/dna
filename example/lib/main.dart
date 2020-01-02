@@ -12,7 +12,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
-
   @override
   void initState() {
     super.initState();
@@ -25,7 +24,6 @@ class _MyAppState extends State<MyApp> {
     // Platform messages may fail, so we use a try/catch PlatformException.
 
     try {
-      NativeContext context;
       platformVersion = await Dna.traversingNative((ObjCContext context) {
         NativeObject version = context.classFromString('UIDevice').invoke(method: 'currentDevice').invoke(method: 'systemVersion');
         version.invoke(method: 'stringByAppendingString:', args: ['-iOS']);

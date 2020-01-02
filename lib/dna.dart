@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:dna/native_object.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
 import 'native_context.dart';
