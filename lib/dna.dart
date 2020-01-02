@@ -23,7 +23,7 @@ class Dna {
       ObjCContextConstructor(nativeContext);
     } else if (Platform.isAndroid) {
       nativeContext = JAVAContext();
-      JAVAContextConstructor(JAVAContext());
+      JAVAContextConstructor(nativeContext);
     }
     return executeNativeContext(nativeContext);
   }
