@@ -3,17 +3,25 @@ import 'dart:math';
 import 'package:flutter/services.dart';
 import 'dart:io';
 
+
 class Dna {
   static const MethodChannel _channel =
       const MethodChannel('dna');
-
-  static Future<String> get platformVersion async {
-    final String version = await _channel.invokeMethod('getPlatformVersion');
-    return version;
-  }
   
   static Future<Object> executeNativeContext(NativeContext context) async {
     return await _channel.invokeMethod('executeNativeContext', context.toJSON());
+  }
+
+  static Future<Object> traversingNative(ObjCContextConstructor(ObjCContext objcContext), JAVAContextConstructor(JAVAContext javaContext)) async {
+    NativeContext nativeContext;
+    if (Platform.isIOS) {
+      nativeContext = ObjCContext();
+      ObjCContextConstructor(nativeContext);
+    } else if (Platform.isAndroid) {
+      nativeContext = JAVAContext();
+      JAVAContextConstructor(JAVAContext());
+    }
+    return executeNativeContext(nativeContext);
   }
 }
 
@@ -47,7 +55,7 @@ class NativeObject extends Object {
   }
 
   NativeObject invoke({String method, List args}) {
-    NativeObject value = context.newNativeObject();
+    NativeObject value = NativeObject(this.context);
     context.invoke(object: this, method: method, args: args, returnVar: value);
     return value;
   }

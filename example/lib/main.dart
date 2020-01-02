@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-
 import 'package:flutter/services.dart';
 import 'package:dna/dna.dart';
 
@@ -24,15 +23,17 @@ class _MyAppState extends State<MyApp> {
   Future<void> initPlatformState() async {
     String platformVersion;
     // Platform messages may fail, so we use a try/catch PlatformException.
+
     try {
-      platformVersion = await Dna.platformVersion;
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-    try {
-      ObjCContext context = ObjCContext();
-      NativeObject version = context.classFromString('UIDevice').invoke(method: 'currentDevice').invoke(method: 'systemVersion');
-      context.classFromString('NSString').invoke(method: 'stringWithString:', args: ['IOS-']).invoke(method:'stringByAppendingString:',args: [version]);
+      platformVersion = await Dna.traversingNative((ObjCContext context) {
+        NativeObject version = context.classFromString('UIDevice').invoke(method: 'currentDevice').invoke(method: 'systemVersion');
+        version.invoke(method: 'stringByAppendingString:', args: ['-iOS']);
+      }, (JAVAContext context) {
+        
+      });
+      // ObjCContext context = ObjCContext();
+      // NativeObject version = context.classFromString('UIDevice').invoke(method: 'currentDevice').invoke(method: 'systemVersion');
+      // context.classFromString('NSString').invoke(method: 'stringWithString:', args: ['IOS-']).invoke(method:'stringByAppendingString:',args: [version]);
 
       // NativeObject objectA = context.newNativeObjectFromJSON({'a':1, 'b':2}, 'ClassA');
       // NativeObject objectB = context.classFromString('ClassB').invoke(method: 'new');
@@ -40,7 +41,8 @@ class _MyAppState extends State<MyApp> {
       // objectB.invoke(method: 'sum:',args: [objectA]);
       
       // int x =  await context.execute();
-      platformVersion = await context.execute();
+      // platformVersion = await context.execute();
+
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }
@@ -57,6 +59,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    initPlatformState();
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(

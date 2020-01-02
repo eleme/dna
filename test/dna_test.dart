@@ -16,6 +16,6 @@ void main() {
   });
 
   test('getPlatformVersion', () async {
-    expect(await Dna.platformVersion, '42');
+    
   });
 }

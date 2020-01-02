@@ -147,12 +147,7 @@ NSString * const dna_returnVar = @"returnVar";
 }
 
 NS_INLINE BOOL dna_isAvailable(id arg) {
-    static NSNull *null;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        null = NSNull.null;
-    });
-    return arg && ![arg isEqual:null];
+    return arg && ![arg isKindOfClass:NSNull.class];
 }
 
 NS_INLINE NSString *dna_getObjectId(NSDictionary *nativeVarJSON) {

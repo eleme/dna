@@ -180,7 +180,9 @@ do { \
         type val = [arguementObject selector]; \
         [self setArgument:&val atIndex:idx]; \
   } while (0)
-  
+  if ([arguementObject isKindOfClass:NSNull.class]) {
+    arguementObject = nil;
+  }
   const char *argType = [self.methodSignature getArgumentTypeAtIndex:idx];
   if (strcmp(argType, @encode(id)) == 0 || strcmp(argType, @encode(Class)) == 0) {
     [self setArgument:&arguementObject atIndex:idx];
