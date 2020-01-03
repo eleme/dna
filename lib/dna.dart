@@ -11,12 +11,14 @@ export 'native_object.dart' show NativeObject, NativeClass;
 class Dna {
   static const MethodChannel _channel =
       const MethodChannel('dna');
-  
+
   static Future<Object> executeNativeContext(NativeContext context) async {
     return await _channel.invokeMethod('executeNativeContext', context.toJSON());
   }
 
-  static Future<Object> traversingNative(ObjCContextConstructor(ObjCContext objcContext), JAVAContextConstructor(JAVAContext javaContext)) async {
+  static Future<Object> traversingNative(
+      ObjCContextConstructor(ObjCContext objcContext),
+      JAVAContextConstructor(JAVAContext javaContext)) async {
     NativeContext nativeContext;
     if (Platform.isIOS) {
       nativeContext = ObjCContext();

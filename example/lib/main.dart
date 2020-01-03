@@ -27,11 +27,22 @@ class _MyAppState extends State<MyApp> {
     try {
       NativeContext context;
       platformVersion = await Dna.traversingNative((ObjCContext context) {
-        NativeObject version = context.classFromString('UIDevice').invoke(method: 'currentDevice').invoke(method: 'systemVersion');
+        NativeObject version = context
+            .classFromString('UIDevice')
+            .invoke(method: 'currentDevice')
+            .invoke(method: 'systemVersion');
         version.invoke(method: 'stringByAppendingString:', args: ['-iOS']);
       }, (JAVAContext context) {
-
+        NativeObject versionId = context
+            .classFromString('android.os.SystemProperties')
+            .invoke(
+                method: 'get', args: ["ro.build.version.release", "unknown"]);
+        NativeObject version = context
+            .classFromString('java.lang.String')
+            .invoke(method: "concat", args: ["android "]).invoke(
+                method: "concat", args: [versionId]);
       });
+
       // ObjCContext context = ObjCContext();
       // NativeObject version = context.classFromString('UIDevice').invoke(method: 'currentDevice').invoke(method: 'systemVersion');
       // context.classFromString('NSString').invoke(method: 'stringWithString:', args: ['IOS-']).invoke(method:'stringByAppendingString:',args: [version]);
@@ -40,9 +51,21 @@ class _MyAppState extends State<MyApp> {
       // NativeObject objectB = context.classFromString('ClassB').invoke(method: 'new');
       // objectB.invoke(method: 'setC:',args: [3]);
       // objectB.invoke(method: 'sum:',args: [objectA]);
-      
+
       // int x =  await context.execute();
       // platformVersion = await context.execute();
+
+      // android 测试代码
+      /*   NativeObject objectA = context
+            .classFromString("com.example.dna_example.DnaTest")
+            .invoke(method: "getDna")
+            .invoke(method: "HelloDna", args: ["Hello dna"]);
+        NativeObject objectC = context.newNativeObjectFromJSON(
+            {'a': 1, 'b': 2}, 'com.example.dna_example.TestModel');
+        NativeObject objectB = context
+            .classFromString('com.example.dna_example.DnaComTest')
+            .invoke(method: 'printlin', args: [objectA]).invoke(
+                method: 'printlin', args: [objectC]);*/
 
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';

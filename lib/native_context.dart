@@ -7,10 +7,10 @@ class NativeInvocation {
   final String method;
   final List args;
   final NativeObject returnVar;
-  
+
   NativeInvocation(this.object, this.method, this.args, this.returnVar);
 
-  Map toJSON () {
+  Map toJSON() {
     Map json = Map();
     if (object != null) {
       json['object'] = object.toJSON();
@@ -35,13 +35,12 @@ class NativeInvocation {
     if (returnVar != null) {
       json['returnVar'] = returnVar.toJSON();
     }
-    return json;  
+    return json;
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
-
 
 class NativeContext {
   final List _invocationNodes = List();
@@ -95,7 +94,7 @@ class NativeContext {
     return false;
   }
 
-  Future<Object> execute () async {
+  Future<Object> execute() async {
     if (this.canExecute()) {
       return await Dna.executeNativeContext(this);
     } else {
