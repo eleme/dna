@@ -69,29 +69,15 @@ class NativeObjectJSONWrapper extends NativeObject {
 
 ////////////////////
 class JavaObjectConstructor extends NativeObject {
-  final List args;
   final String cls;
 
-  JavaObjectConstructor(NativeContext context, this.cls, this.args) : super(context) {
-    context.invoke(object: this, method: null, args: null, returnVar: this);
+  JavaObjectConstructor(NativeContext context, this.cls, List args) : super(context) {
+    context.invoke(object: this, method: null, args: args, returnVar: this);
   }
 
   Map toJSON() {
     Map json = super.toJSON();
     json['contructCls'] = cls;
-
-    if (args != null) {
-      List argsJSON = List();
-      for (var arg in args) {
-        if (arg is NativeObject) {
-          argsJSON.add(arg.toJSON());
-        } else {
-          argsJSON.add(arg);
-        }
-      }
-      json['contructArgs'] = argsJSON;
-    }
-
     return json;
   }
 }
