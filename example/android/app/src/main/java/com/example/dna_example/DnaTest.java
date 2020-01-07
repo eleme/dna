@@ -8,4 +8,8 @@ public class DnaTest {
     public DnaVersion getDnaVersion() {
         return new DnaVersion();
     }
+
+    public String getString() {
+        return "dna test";
+    }
 }
