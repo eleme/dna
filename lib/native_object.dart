@@ -72,8 +72,9 @@ class JavaObjectConstructor extends NativeObject {
   final List args;
   final String cls;
 
-  JavaObjectConstructor(NativeContext context, this.cls, this.args)
-      : super(context);
+  JavaObjectConstructor(NativeContext context, this.cls, this.args) : super(context) {
+    context.invoke(object: this, method: null, args: null, returnVar: this);
+  }
 
   Map toJSON() {
     Map json = super.toJSON();

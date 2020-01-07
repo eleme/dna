@@ -119,7 +119,6 @@ class JAVAContext extends NativeContext {
 
   NativeObject newJavaObjectFromConstructor(String clsName, List args) {
     NativeObject orignVar = JavaObjectConstructor(this, clsName, args);
-    invoke(object: orignVar, method: clsName, args: args, returnVar: orignVar);
     return orignVar;
   }
 }
