@@ -16,15 +16,15 @@ class Dna {
   }
 
   static Future<Object> traversingNative(
-      ObjCContextConstructor(ObjCContext objcContext),
-      JAVAContextConstructor(JAVAContext javaContext)) async {
+      ObjCContextBuilder(ObjCContext objcContext),
+      JAVAContextBuilder(JAVAContext javaContext)) async {
     NativeContext nativeContext;
     if (Platform.isIOS) {
       nativeContext = ObjCContext();
-      ObjCContextConstructor(nativeContext);
+      ObjCContextBuilder(nativeContext);
     } else if (Platform.isAndroid) {
       nativeContext = JAVAContext();
-      JAVAContextConstructor(nativeContext);
+      JAVAContextBuilder(nativeContext);
     }
     return executeNativeContext(nativeContext);
   }
