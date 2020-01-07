@@ -32,6 +32,7 @@ public class DnaPlugin implements MethodCallHandler {
     public static final String DNA_METHOD = "method";
     public static final String DNA_ARGS = "args";
     public static final String DNA_CONTRUCT_ARGS = "contructArgs";
+    public static final String DNA_CONTRUCT_CLS = "contructCls";
 
     /**
      * Plugin registration.
@@ -75,6 +76,7 @@ public class DnaPlugin implements MethodCallHandler {
 
         Map<String, Object> idMap;
         String clsName;
+        String constructName;
         String nodeId;
         String methodName;
         List<Object> argsMap;
@@ -86,16 +88,17 @@ public class DnaPlugin implements MethodCallHandler {
             nodeId = (String) idMap.get(OBJECTID);
             if (idMap.containsKey(DNA_CLS_NAME)) {
                 clsName = (String) idMap.get(DNA_CLS_NAME);
-                valueMap.put(nodeId, idMap.containsKey(DNA_CONTRUCT_ARGS)
-                        ? DnaClient.getClient().invokeConstructorMethod(clsName, getParameters(valueMap, (List<Object>) idMap.get(DNA_CONTRUCT_ARGS)))
-                        : new DnaClassInfo(clsName));
+                valueMap.put(nodeId, new DnaClassInfo(clsName));
+            } else if (!valueMap.containsKey(nodeId) && idMap.containsKey(DNA_CONTRUCT_CLS)) {
+                constructName = (String) idMap.get(DNA_CONTRUCT_CLS);
+                valueMap.put(nodeId, DnaClient.getClient().invokeConstructorMethod(constructName, getParameters(valueMap, (List<Object>) idMap.get(DNA_CONTRUCT_ARGS))));
+                continue;
             }
             parameterInfos.clear();
 
             methodName = String.valueOf(node.get(DNA_METHOD));
             argsMap = (List<Object>) node.get(DNA_ARGS);
             parameterInfos = getParameters(valueMap, argsMap);
-
 
             String returnId = getReturnString((Map<String, String>) node.get(RETURNVAR));
             Object ownerObject = valueMap.get(nodeId);
