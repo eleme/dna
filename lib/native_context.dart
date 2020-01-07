@@ -47,8 +47,10 @@ class NativeContext {
   final List _objectJSONWrappers = List();
   NativeObject returnVar;
 
-  void invoke({NativeObject object, String method, List args, NativeObject returnVar}) {
-    NativeInvocation invocation = NativeInvocation(object, method, args, returnVar);
+  void invoke(
+      {NativeObject object, String method, List args, NativeObject returnVar}) {
+    NativeInvocation invocation =
+        NativeInvocation(object, method, args, returnVar);
     _invocationNodes.add(invocation);
   }
 
@@ -67,7 +69,6 @@ class NativeContext {
     _objectJSONWrappers.add(object);
     return object;
   }
-
 
   Map toJSON() {
     List invocationNodesJSON = List();
@@ -103,7 +104,6 @@ class NativeContext {
   }
 }
 
-
 //////////////////
 class ObjCContext extends NativeContext {
   bool canExecute() {
@@ -115,5 +115,10 @@ class ObjCContext extends NativeContext {
 class JAVAContext extends NativeContext {
   bool canExecute() {
     return Platform.isAndroid;
+  }
+
+  NativeObject toNew(String clsName, List args) {
+    NativeClass cls = JavaConstructNativeClass(this, clsName, args);
+    return cls;
   }
 }

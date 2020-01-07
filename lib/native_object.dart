@@ -1,4 +1,3 @@
-
 import 'dart:math';
 import 'native_context.dart';
 
@@ -8,7 +7,7 @@ class NativeObject extends Object {
 
   String _randomString() {
     String alphabet = 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM';
-    int strlenght = 8; 
+    int strlenght = 8;
     String randomString = '';
     for (var i = 0; i < strlenght; i++) {
       randomString = randomString + alphabet[Random().nextInt(alphabet.length)];
@@ -17,10 +16,10 @@ class NativeObject extends Object {
   }
 
   NativeObject(this.context) {
-     _objectId = '_objectId_' + _randomString();
+    _objectId = '_objectId_' + _randomString();
   }
 
-  Map toJSON () {
+  Map toJSON() {
     Map json = Map();
     if (_objectId != null) {
       json['_objectId'] = _objectId;
@@ -38,9 +37,10 @@ class NativeObject extends Object {
 //////////////////
 class NativeClass extends NativeObject {
   final String clsName;
+
   NativeClass(NativeContext context, this.clsName) : super(context);
-   
-  Map toJSON () {
+
+  Map toJSON() {
     Map json = super.toJSON();
     if (clsName != null) {
       json['clsName'] = clsName;
@@ -49,13 +49,29 @@ class NativeClass extends NativeObject {
   }
 }
 
+////////////////////
+class JavaConstructNativeClass extends NativeClass {
+  List args;
+
+  JavaConstructNativeClass(NativeContext context, clsName, this.args)
+      : super(context, clsName);
+
+  Map toJSON() {
+    Map json = super.toJSON();
+    json['contructArgs'] = args;
+    return json;
+  }
+}
+
 //////////////////
 class NativeObjectJSONWrapper extends NativeObject {
   final Map json;
   final String cls;
-  NativeObjectJSONWrapper(NativeContext context, this.json, this.cls) : super(context);
 
-  Map toJSON () {
+  NativeObjectJSONWrapper(NativeContext context, this.json, this.cls)
+      : super(context);
+
+  Map toJSON() {
     Map json = super.toJSON();
     if (this.json != null) {
       json['json'] = this.json;
