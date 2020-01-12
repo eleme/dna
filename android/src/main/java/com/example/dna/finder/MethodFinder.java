@@ -2,6 +2,7 @@ package com.example.dna.finder;
 
 import com.example.dna.model.MethodInfo;
 import com.example.dna.model.ParameterInfo;
+import com.example.dna.util.DnaUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -37,12 +38,13 @@ public class MethodFinder {
         }
     }
 
-    /**
-     * 不支持ParameterizedType参数
-     */
+
     public MethodInfo getReflectMethodFromClazz() {
         List<Method> tempMethodList = new ArrayList<>();
         Method[] methods = invokeClass.getDeclaredMethods();
+        if (methods == null) {
+            return null;
+        }
         MethodInfo methodInfo = null;
         for (Method method : methods) {
             int modifier = method.getModifiers();
@@ -62,30 +64,33 @@ public class MethodFinder {
 
 
     private Method getExactMethod(List<Method> methods) {
-        if (methods == null || methods.isEmpty()) {
+        if (DnaUtils.isEmpty(methods)) {
             return null;
         }
-        boolean isExcatMethod;
+        boolean isExactMethod;
         for (Method method : methods) {
             Type[] types = method.getGenericParameterTypes();
-            if (types.length != paramType.size()) {
+            if (types == null && paramType == null) {
+                return method;
+            }
+            if (types == null || paramType == null || types.length != paramType.size()) {
                 continue;
             }
             if (types.length == 0) {
                 return method;
             }
-            isExcatMethod = true;
+            isExactMethod = true;
             for (int i = 0; i < types.length; i++) {
                 if (!(types[i] instanceof Class)) {
                     return null;
                 }
                 if (paramType.get(i) != null && !(paramType.get(i).equals(((Class) types[i]).getName()))) {
-                    isExcatMethod = false;
+                    isExactMethod = false;
                     break;
                 }
 
             }
-            if (isExcatMethod) {
+            if (isExactMethod) {
                 return method;
             }
         }

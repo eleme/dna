@@ -2,11 +2,14 @@ package com.example.dna_example;
 
 
 public class DnaVersion {
-    public DnaVersion() {
+    String version;
+
+    public DnaVersion(String verssion) {
+        this.version = verssion;
     }
 
     public String getVersion() {
-        return android.os.Build.VERSION.RELEASE;
+        return version + android.os.Build.VERSION.RELEASE;
     }
 
 }

@@ -32,14 +32,14 @@ public class ConstructorFinder {
             return null;
         }
         for (Constructor<?> con : cons) {
-            if (checkContructor(con, param)) {
+            if (checkConstructor(con, param)) {
                 return con;
             }
         }
         return null;
     }
 
-    private boolean checkContructor(Constructor<?> con, List<String> param) {
+    private boolean checkConstructor(Constructor<?> con, List<String> param) {
         Class<?>[] parameterTypes = con.getParameterTypes();
         if (parameterTypes.length != param.size()) {
             return false;

@@ -1,12 +1,14 @@
 package com.example.dna_example;
 
 public class DnaTest {
+    String version;
 
-    public DnaTest() {
+    public DnaTest(String version) {
+        this.version = version;
     }
 
     public DnaVersion getDnaVersion() {
-        return new DnaVersion();
+        return new DnaVersion(version);
     }
 
     public String getString() {

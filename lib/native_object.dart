@@ -77,7 +77,7 @@ class JavaObjectConstructor extends NativeObject {
 
   Map toJSON() {
     Map json = super.toJSON();
-    json['contructCls'] = cls;
+    json['constructCls'] = cls;
     return json;
   }
 }
