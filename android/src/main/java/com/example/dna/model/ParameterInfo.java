@@ -1,4 +1,5 @@
 package com.example.dna.model;
+
 /**
  * Author: Zhiqing.Zhang
  * Description:
@@ -34,7 +35,4 @@ public class ParameterInfo {
         this.type = type;
     }
 
-    public boolean isParameter() {
-        return type != null && type.equals("");
-    }
 }

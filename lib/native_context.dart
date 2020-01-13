@@ -116,4 +116,9 @@ class JAVAContext extends NativeContext {
   bool canExecute() {
     return Platform.isAndroid;
   }
+
+  NativeObject newJavaObjectFromConstructor(String clsName, List args) {
+    NativeObject orignVar = JavaObjectConstructor(this, clsName, args);
+    return orignVar;
+  }
 }

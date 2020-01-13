@@ -32,11 +32,12 @@ class _MyAppState extends State<MyApp> {
         version.invoke(method: 'stringByAppendingString:', args: ['-iOS']);
       }, (JAVAContext context) {
         NativeObject versionId = context
-            .classFromString('android.os.SystemProperties')
-            .invoke(
-                method: 'get', args: ["ro.build.version.release", "unknown"]);
+            .newJavaObjectFromConstructor(
+                'com.example.dna_example.DnaTest', null)
+            .invoke(method: 'getDnaVersion')
+            .invoke(method: 'getVersion');
         NativeObject version = context
-            .classFromString('java.lang.String')
+            .newJavaObjectFromConstructor('java.lang.String', null)
             .invoke(method: "concat", args: ["android "]).invoke(
                 method: "concat", args: [versionId]);
       });

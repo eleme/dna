@@ -38,4 +38,21 @@ public class MethodInfo {
     public void setArgs(List<Class<?>> args) {
         this.args = args;
     }
+
+    public boolean checkParam(List<ParameterInfo> parameterInfos) {
+        if (args == null && parameterInfos == null) {
+            return true;
+        }
+        if (args == null
+                || parameterInfos == null
+                || args.size() != parameterInfos.size()) {
+            return false;
+        }
+        for (int i = 0; i < args.size(); i++) {
+            if (args.get(i).getName() != parameterInfos.get(i).getType()) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

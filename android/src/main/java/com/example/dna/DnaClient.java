@@ -12,6 +12,7 @@ import com.example.dna.util.DnaUtils;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +24,6 @@ import java.util.Map;
  */
 
 public class DnaClient {
-
-
     private static Map<String, Class<?>> classCahe = new HashMap<>();
 
     private static Map<String, Class<?>> classConstructiorCahe = new HashMap<>();
@@ -48,6 +47,17 @@ public class DnaClient {
 
     }
 
+    /**
+     * 调用构造方法
+     *
+     * @param className
+     * @param param
+     * @return
+     * @throws ClassNotFoundException
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     public Object invokeConstructorMethod(String className, List<ParameterInfo> param)
             throws ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException {
         Class<?> constructorClass = classConstructiorCahe.get(className);
@@ -56,7 +66,7 @@ public class DnaClient {
             classConstructiorCahe.put(className, constructorClass);
         }
 
-        if (param == null || param.isEmpty()) {
+        if (DnaUtils.isEmpty(param)) {
             return constructorClass.newInstance();
         }
 
@@ -64,6 +74,18 @@ public class DnaClient {
 
     }
 
+    /**
+     * 调用方法
+     *
+     * @param className
+     * @param owner
+     * @param methodName
+     * @param param
+     * @return
+     * @throws ArgsException
+     * @throws ClassNotFoundException
+     * @throws AbnormalMethodException
+     */
     public Object invokeMethod(String className, Object owner, String methodName, List<ParameterInfo> param) throws ArgsException, ClassNotFoundException, AbnormalMethodException {
         Map<String, MethodInfo> methods = methodCache.get(className);
         MethodInfo methodObj = null;
@@ -73,7 +95,7 @@ public class DnaClient {
         if (!methods.isEmpty()) {
             methodObj = methods.get(methodName);
         }
-        if (methodObj == null) {
+        if (methodObj == null || !methodObj.checkParam(param)) {
             methodObj = getReflectMethod(className, methodName, param);
             methods.put(methodName, methodObj);
         }
@@ -112,7 +134,7 @@ public class DnaClient {
         if (con == null) {
             ownerInstance = owner.newInstance();
         } else {
-            ownerInstance = con.newInstance(DnaUtils.getParamContent(param).toArray());
+            ownerInstance = con.newInstance(getParamContent(param).toArray());
         }
         return ownerInstance;
 
@@ -127,6 +149,17 @@ public class DnaClient {
             throw new IllegalStateException("Unexpected exception", e);
         }
         return null;
+    }
+
+    private List<String> getParamContent(List<ParameterInfo> parameterInfos) {
+        if (parameterInfos == null || parameterInfos.isEmpty()) {
+            return null;
+        }
+        List<String> list = new ArrayList<>();
+        for (ParameterInfo info : parameterInfos) {
+            list.add(info.getContent());
+        }
+        return list;
     }
 
 }

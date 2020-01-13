@@ -4,3 +4,4 @@
 .packages
 .pub/
 build/
+/.idea/workspace.xml
