@@ -12,7 +12,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
-
   @override
   void initState() {
     super.initState();
@@ -32,13 +31,9 @@ class _MyAppState extends State<MyApp> {
             .invoke(method: 'systemVersion');
         version.invoke(method: 'stringByAppendingString:', args: ['-iOS']);
       }, (JAVAContext context) {
-        NativeObject version2 = context.newJavaObjectFromConstructor(
-            'java.lang.String', ["nihao"]).invoke(method: "concat", args: [
-          "dns test"
-        ]).invoke(method: "concat", args: ["dns test"]);
         NativeObject versionId = context
             .newJavaObjectFromConstructor(
-                'com.example.dna_example.DnaTest', [version2])
+                'com.example.dna_example.DnaTest', null)
             .invoke(method: 'getDnaVersion')
             .invoke(method: 'getVersion');
         NativeObject version = context
@@ -94,12 +89,7 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: new GestureDetector(
-            onTap: () {
-              initPlatformState();
-            },
-            child: Text('Running on: $_platformVersion\n'),
-          ),
+          child: Text('Running on: $_platformVersion\n'),
         ),
       ),
     );
