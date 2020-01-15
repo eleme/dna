@@ -3,14 +3,15 @@ import 'native_context.dart';
 
 class NativeObject extends Object {
   final NativeContext context;
+
+  static String _alphabet = 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM';
+  static int _strlenght = 8;
   String _objectId;
 
-  String _randomString() {
-    String alphabet = 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM';
-    int strlenght = 8;
+  static String _randomString() {
     String randomString = '';
-    for (var i = 0; i < strlenght; i++) {
-      randomString = randomString + alphabet[Random().nextInt(alphabet.length)];
+    for (var i = 0; i < _strlenght; i++) {
+      randomString = randomString + _alphabet[Random().nextInt(_alphabet.length)];
     }
     return randomString;
   }
@@ -28,9 +29,9 @@ class NativeObject extends Object {
   }
 
   NativeObject invoke({String method, List args}) {
-    NativeObject value = NativeObject(this.context);
-    context.invoke(object: this, method: method, args: args, returnVar: value);
-    return value;
+    NativeObject returnValue = NativeObject(this.context);
+    context.invoke(object: this, method: method, args: args, returnVar: returnValue);
+    return returnValue;
   }
 }
 
