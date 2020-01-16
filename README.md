@@ -1,6 +1,9 @@
 # dna
 
-一个flutter plugin. 轻量级的Dart到Native的超级通道, 直接在dart代码中调用原生代码，目前支持安卓 JAVA 和 iOS ObjC.
+一个flutter plugin. 轻量级的Dart到Native的超级通道, 直接在dart代码中调用原生代码，目前支持安卓 JAVA 和 iOS ObjC. 主要用途:
+
+* 可以把channel中的原生代码写在dart中，
+* 让原生代码也支持热加载.
 
 # 开始
 1.这里建议使用 `git` 依赖, 在flutter工程 pubspec.yaml 添加如下:
@@ -175,6 +178,38 @@ NativeObject version = context
 * 暂时不支持在代码混淆的工程中使用
 * 不支持泛型
 
+## 快捷组织双端代码
+提供了一个快捷的方法来 初始化和执行 context.
+
+```
+static Future<Object> traversingNative(ObjCContextBuilder(ObjCContext objcContext), JAVAContextBuilder(JAVAContext javaContext)) async {
+    NativeContext nativeContext;
+    if (Platform.isIOS) {
+      nativeContext = ObjCContext();
+      ObjCContextBuilder(nativeContext);
+    } else if (Platform.isAndroid) {
+      nativeContext = JAVAContext();
+      JAVAContextBuilder(nativeContext);
+    }
+    return executeNativeContext(nativeContext);
+}
+  
+```
+可以快速书写两端的原生调用
+
+```
+platformVersion = await Dna.traversingNative((ObjCContext context) {
+    NativeObject version = context.classFromString('UIDevice').invoke(method: 'currentDevice').invoke(method: 'systemVersion');
+    version = context.classFromString("NSString").invoke(method: 'stringWithString:', args: ['iOS-']).invoke(method: 'stringByAppendingString:', args: [version]);
+    
+    context.returnVar = version; // 该句可省略
+}, (JAVAContext context) {
+    NativeObject versionId = context.newJavaObjectFromConstructor('com.example.dna_example.DnaTest', null).invoke(method: 'getDnaVersion').invoke(method: 'getVersion');
+    NativeObject version = context.newJavaObjectFromConstructor('java.lang.String', ["android "]).invoke(method: "concat", args: [versionId]);
+    
+    context.returnVar = version; // 该句可省略
+});
+```
 
 # 原理简介
 `dna` 并不涉及` dart对象到Native对象的转换` ，也不关心 `Native对象的生命周期`，而是着重与描述原生方法调用的上下文，在 `context execute` 时通过 `channel` 调用一次原生方法，把调用栈以 `JSON` 的形式传过去供原生动态解析调用。
