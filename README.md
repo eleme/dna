@@ -1,8 +1,8 @@
 # dna
 
-一个flutter plugin. 轻量级的Dart到Native的超级通道, 直接在dart代码中调用原生代码，目前支持安卓 JAVA 和 iOS ObjC. 主要用途:
+一个flutter plugin. 轻量级的Dart到Native的超级通道, 可直接在dart代码中调用原生代码，目前支持安卓 JAVA 和 iOS ObjC. 主要用途:
 
-* 可以把channel中的原生代码写在dart中，
+* 可以把channel中的原生代码写在dart代码中，
 * 让原生代码也支持热加载.
 
 # 开始
