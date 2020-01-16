@@ -348,5 +348,5 @@ Stinger is available under the MIT license. See the LICENSE file for more info.
 
 ## 其他
 
-* 代码仓库可能会迁移到其他仓库，另行通知
+* 代码仓库近期会迁移到eleme下
 * 欢迎试用，建议和提交代码
