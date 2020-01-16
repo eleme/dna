@@ -41,7 +41,7 @@ public class MethodFinder {
 
     public MethodInfo getReflectMethodFromClazz() {
         List<Method> tempMethodList = new ArrayList<>();
-        Method[] methods = invokeClass.getDeclaredMethods();
+        Method[] methods = invokeClass.getMethods();
         if (methods == null) {
             return null;
         }
