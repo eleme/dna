@@ -1,5 +1,6 @@
 package com.example.dna;
 
+import com.example.dna.exception.AbnormalConstructorException;
 import com.example.dna.exception.AbnormalMethodException;
 import com.example.dna.exception.ArgsException;
 import com.example.dna.finder.ConstructorFinder;
@@ -59,7 +60,7 @@ public class DnaClient {
      * @throws InvocationTargetException
      */
     public Object invokeConstructorMethod(String className, List<ParameterInfo> param)
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException {
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException, AbnormalConstructorException, InvocationTargetException {
         Class<?> constructorClass = classConstructiorCahe.get(className);
         if (constructorClass == null) {
             constructorClass = Class.forName(className);
@@ -122,7 +123,7 @@ public class DnaClient {
      *
      * @param param
      */
-    private Object constructorOwner(Class<?> owner, List<ParameterInfo> param) throws InstantiationException, IllegalAccessException,
+    private Object constructorOwner(Class<?> owner, List<ParameterInfo> param) throws InstantiationException, IllegalAccessException, AbnormalConstructorException,
             IllegalArgumentException, InvocationTargetException {
         Constructor<?>[] cons = owner.getConstructors();
         if (cons == null || cons.length == 0) {
@@ -132,7 +133,7 @@ public class DnaClient {
         ConstructorFinder constructorFinder = new ConstructorFinder(owner, param);
         Constructor<?> con = constructorFinder.getConstructor();
         if (con == null) {
-            ownerInstance = owner.newInstance();
+            throw new AbnormalConstructorException("invalid constructor");
         } else {
             ownerInstance = con.newInstance(getParamContent(param).toArray());
         }
