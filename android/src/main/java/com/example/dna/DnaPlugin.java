@@ -150,11 +150,15 @@ public class DnaPlugin implements MethodCallHandler {
                     if (paraContent instanceof ParameterInfo) {
                         parameters.add((ParameterInfo) paraContent);
                     } else if (paraContent != null) {
-                        parameters.add(new ParameterInfo(GsonUtils.toJson(paraContent), paraContent.getClass().getName()));
+                        parameters.add(new ParameterInfo(DnaUtils.isPrimitiveClass(paraContent.getClass())
+                                ? String.valueOf(paraContent)
+                                : GsonUtils.toJson(paraContent), paraContent.getClass().getName()));
                     }
-                } else {
-                    parameters.add(new ParameterInfo(String.valueOf(o)));
+                } else if (o != null) {
+                    parameters.add(new ParameterInfo(String.valueOf(o), o.getClass().getName()));
 
+                } else {
+                    parameters.add(new ParameterInfo(null, null));
                 }
             }
         }

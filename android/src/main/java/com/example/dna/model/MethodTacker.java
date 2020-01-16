@@ -7,6 +7,8 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.dna.util.DnaUtils.isPrimitiveClass;
+
 /**
  * Author: Zhiqing.Zhang
  * FileName: MethodTacker
@@ -39,19 +41,5 @@ public class MethodTacker {
         return argsElements;
     }
 
-    // todo check
-    private static boolean isPrimitiveClass(Class clz) {
-        if (clz.getName() == String.class.getName()) {
-            return true;
-        }
-        return clz.isPrimitive() || isWrapClass(clz);
-    }
 
-    public static boolean isWrapClass(Class clz) {
-        try {
-            return ((Class) clz.getField("TYPE").get(null)).isPrimitive();
-        } catch (Exception e) {
-            return false;
-        }
-    }
 }

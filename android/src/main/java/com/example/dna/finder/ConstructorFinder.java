@@ -1,10 +1,12 @@
 package com.example.dna.finder;
 
 import com.example.dna.model.ParameterInfo;
+import com.example.dna.util.DnaUtils;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  * Author: Zhiqing.Zhang
  * Description:
@@ -18,8 +20,10 @@ public class ConstructorFinder {
     public ConstructorFinder(Class<?> owner, List<ParameterInfo> param) {
         this.owner = owner;
         this.param = new ArrayList<>();
-        for (ParameterInfo info : param) {
-            this.param.add(info.getType());
+        if (!DnaUtils.isEmpty(param)) {
+            for (ParameterInfo info : param) {
+                this.param.add(info.getType());
+            }
         }
     }
 
@@ -48,7 +52,7 @@ public class ConstructorFinder {
             return true;
         }
         for (int i = 0; i < parameterTypes.length; i++) {
-            if (parameterTypes[i].getName() != param.get(i)) {
+            if (parameterTypes[i].getName() != param.get(i) && param.get(i) != null) {
                 return false;
             }
         }
