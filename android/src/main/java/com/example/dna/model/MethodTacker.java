@@ -2,12 +2,10 @@ package com.example.dna.model;
 
 import com.example.dna.util.GsonUtils;
 import com.example.dna.exception.ArgsException;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.dna.util.DnaUtils.isPrimitiveClass;
 
 /**
  * Author: Zhiqing.Zhang
@@ -35,11 +33,17 @@ public class MethodTacker {
         }
         List<Object> argsElements = new ArrayList<>();
         for (int i = 0; i < reflectArgs.size(); i++) {
-            argsElements.add(isPrimitiveClass(reflectArgs.get(i)) ? args.get(i).getContent() : GsonUtils.fromJson(args.get(i).getContent(), reflectArgs.get(i)));
+            argsElements.add(isString(reflectArgs.get(i)) ? args.get(i).getContent() : GsonUtils.fromJson(args.get(i).getContent(), reflectArgs.get(i)));
         }
 
         return argsElements;
     }
 
+    public static boolean isString(Class clz) {
+        if (clz.getName().equals(String.class.getName())) {
+            return true;
+        }
+        return false;
+    }
 
 }

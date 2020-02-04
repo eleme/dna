@@ -153,7 +153,7 @@ public class DnaClient {
     }
 
     private List<String> getParamContent(List<ParameterInfo> parameterInfos) {
-        if (parameterInfos == null || parameterInfos.isEmpty()) {
+        if (DnaUtils.isEmpty(parameterInfos)) {
             return null;
         }
         List<String> list = new ArrayList<>();
