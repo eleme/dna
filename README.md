@@ -1,49 +1,61 @@
 # dna
+[中文文档](./README_CN.md)
+A lightweight dart to native super channel plugin, You can use it to invoke any native code directly in dart code.
 
-一个flutter plugin. 轻量级的Dart到Native的超级通道, 可直接在dart代码中调用原生代码，目前支持安卓 JAVA 和 iOS ObjC. 主要用途:
+Supported Platform(Language):
 
-* 可以把channel中的原生代码写在dart代码中，
-* 让原生代码也支持热加载.
+- iOS(Objective-C)
+- Android(Java)
 
-# 开始
-1.这里建议使用 `git` 依赖, 在flutter工程 pubspec.yaml 添加如下:
+The primary scenario:
 
-```
-dependencies:
- dna:
-    git:git@github.com:Assuner-Lee/dna.git
-```
-
-> [参考文档: https://flutter.dev/docs/development/packages-and-plugins/using-packages](https://flutter.dev/docs/development/packages-and-plugins/using-packages)
-
-2.在dart代码中引入头文件
-
-```
-import 'package:dna/dna.dart';
-```
+- Implement some simple channels directly in dart code;
+- Native code that are calling using dna can also be hot-reloaded.
 
 
-# 使用介绍
-`dna` 在`Dart代码`中:
+## Add dependency
+1. Add folllowing code to the *pubspec.yaml* file in your flutter project:
 
-* 定义了 `NativeContext 类` ，以执行 `Dart 代码` 的方式，描述 `Native 代码` 调用上下文(调用栈)；最后调用 `context.execute()` 执行对应平台的 `Native 代码` 并返回结果。
+	```
+	dependencies:
+ 	dna:
+    	git:git@github.com:Assuner-Lee/dna.git
+	```
 
-* 定义了 `NativeObject 类` ，用于标识 `Native 变量`. `调用者 NativeObject 对象` 可借助 `所在NativeContext上下文` 调用 `invoke方法` 传入 `方法名 method` 和 `参数数组 args list` ，得到 `返回值NativeObject对象` 。
+	> Reference: [https://flutter.dev/docs/development/packages-and-plugins/using-packages](https://flutter.dev/docs/development/packages-and-plugins/using-packages)
 
-`NativeContext 子类` 的API是一致的. 下面先详细介绍通过 `ObjCContext` 调用 `ObjC` ，再区别介绍 `JAVAContext` 调用 `JAVA`.
+2. import header file in dart code:
 
-## Dart 调用 ObjC
-`ObjCContext` 仅在iOS平台会实际执行.
+	```
+	import 'package:dna/dna.dart';
+	```
 
-### 1. 支持上下文调用
-##### (1) 返回值作为调用者
-ObjC代码
+
+## Usage
+
+### Main class
+
+- `NativeContext`: You can use it to describe *Native code* by *Dart code*, then call `context.execute()` to execute the final *Native code* on associated platform and get the returned value.
+
+- `NativeObject`: Used to identify the *native variable*. The caller `NativeObject ` can call the `invoke` method to pass in the *method name* and the *parameter array args list* in the context of the `NativeContext` to get the return value `NativeObject` object.
+
+
+The API of `NativeContext` is consistent. Now we will make a detailed introduction for call *ObjC* using `ObjCContext`, Then call *Java* using `JAVAContext`.
+
+### Call ObjC using Dart
+
+`ObjCContext` is the final executor on iOS platform.
+
+#### Context call supported
+##### Returned value as caller
+
+ObjC code
 
 ```
 NSString *versionString = [[UIDevice currentDevice] systemVersion];
-// 通过channel返回versionString
+// Return versionString using fluter channel
 ``` 
-Dart 代码
+Dart code
 
 ```
 ObjCContext context = ObjCContext();
@@ -51,23 +63,24 @@ NativeObject UIDevice = context.classFromString('UIDevice');
 NativeObject device = UIDevice.invoke(method: 'currentDevice');
 NativeObject version = device.invoke(method: 'systemVersion');
 
-context.returnVar = version; // 可省略设定最终返回值, 参考3
+context.returnVar = version; // Can be omitted, See:Quick use of instantiated objects in JSON supported
 
-// 直接获得原生执行结果  
+// Get native execution results directly
 var versionString = await context.execute(); 
 ```
 
-##### (2) 返回值作为参数
-ObjC代码
+##### Returned value as parameters
+
+ObjC code
 
 ```
 NSString *versionString = [[UIDevice currentDevice] systemVersion];
 NSString *platform = @"iOS-";
 versionString = [platform stringByAppendingString: versionString];
 
-// 通过channel返回versionString
+// Return versionString using fluter channel
 ``` 
-Dart 代码
+Dart code
 
 ```
 ObjCContext context = ObjCContext();
@@ -77,55 +90,58 @@ NativeObject version = device.invoke(method: 'systemVersion');
 NativeObject platform = context.classFromString("NSString").invoke(method: 'stringWithString:', args: ['iOS-']);
 version = platform.invoke(method: 'stringByAppendingString:', args: [version]);
 
-context.returnVar = version; // 可省略设定最终返回值, 参考3
+context.returnVar = version; // Can be omitted, See:Quick use of instantiated objects in JSON supported
 
-// 直接获得原生执行结果  
+// Get native execution results directly
 var versionString = await context.execute(); 
 ```
 
+#### Chaining calls supported
 
-### 2. 支持链式调用
-ObjC代码
+ObjC code
 
 ```
 NSString *versionString = [[UIDevice currentDevice] systemVersion];
 versionString = [@"iOS-" stringByAppendingString: versionString];
 
-// 通过channel返回versionString
+// Return versionString using fluter channel
 ```
 
-Dart 代码
+Dart code
 
 ```
 ObjCContext context = ObjCContext();
 NativeObject version = context.classFromString('UIDevice').invoke(method: 'currentDevice').invoke(method: 'systemVersion');
 version = context.classFromString("NSString").invoke(method: 'stringWithString:', args: ['iOS-']).invoke(method: 'stringByAppendingString:', args: [version]);
 
-context.returnVar = version; // 可省略设定最终返回值, 参考3
+context.returnVar = version; // Can be omitted, See:Quick use of instantiated objects in JSON supported
 
-// 直接获得原生执行结果
+
+// Get native execution results directly
 var versionString = await context.execute(); 
 ```
 
-### *关于Context的最终返回值
 
-`context.returnVar` 是 `context` 最终执行完毕返回值的标记
+> **Something about the final returned value of the `context`**
 
-1. 设定context.returnVar: 返回该NativeObject对应的Native变量
-2. 不设定context.returnVar: 执行到最后一个invoke，如果有返回值，作为context的最终返回值; 无返回值则返回空值;
+> `context.returnVar` is the marker of the final returned value of `context`.
 
-```
-ObjCContext context = ObjCContext();
-context.classFromString('UIDevice').invoke(method: 'currentDevice').invoke(method: 'systemVersion');
+> 1. When setting `context.returnVar`, you can get the *Native* variable corresponding to the `NativeObject`;
+> 2. Without setting `context.returnVar`, execute to the last `invoke`, if there is a return value, it will be the final returned value of `context`; if not, it will return a `null` value.
 
-// 直接获得原生执行结果
-var versionString = await context.execute(); 
-```
+> ```
+> ObjCContext context = ObjCContext();
+> context.classFromString('UIDevice').invoke(method: 'currentDevice').invoke(method: 'systemVersion');
+> 
+> // Get native execution results directly
+> var versionString = await context.execute(); 
+> ```
 
-### 3.支持快捷使用JSON中实例化对象
-或许有些时候，我们需要用 `JSON` 直接实例化一个对象.
+#### Quick use of instantiated objects in JSON supported
 
-ObjC代码
+Sometimes, we need to directly instantiate an object with `JSON`.
+
+ObjC code
 
 ```
 ClassA *objectA = [ClassA new]; 
@@ -133,8 +149,9 @@ objectA.a = 1;
 objectA.b = @"sss";
 ``` 
 
-一般时候，这样写
-Dart 代码
+Dart code
+
+One way
 
 ```
 ObjCContext context = ObjCContext();
@@ -142,30 +159,34 @@ NativeObject objectA = context.classFromString('ClassA').invoke(method: 'new');
 objectA.invoke(method: 'setA:', args: [1]);
 objectA.invoke(method: 'setB:', args: ['sss']);
 ```
-也可以从JSON中生成
+
+The other way
 
 ```
 ObjCContext context = ObjCContext();
 NativeObject objectA = context.newNativeObjectFromJSON({'a':1,'b':'sss'}, 'ClassA');
 ```
 
-## Dart 调用 JAVA
-`JAVAContext` 仅在安卓系统中会被实际执行. `JAVAContext` 拥有上述 `ObjCContext` `Dart调ObjC` 的全部特性.
+### Call Java using Dart
 
-* 支持上下文调用
-* 支持链式调用
-* 支持用JSON中实例化对象
+`JAVAContext` is the final executor on Android
+ platform, it has all the fetures that `ObjCContext` have.
+ 
+- Context call supported;
+- Chaining calls supported;
+- Quick use of instantiated objects in JSON supported.
 
-另外，额外支持了从构造器中实例化一个对象
+In addition, it additionally supports the instantiation of an object from the constructor.
 
-### 4. 支持快捷使用构造器实例化对象
-JAVA代码
+#### The instantiation of an object from the constructor supported
+
+Java code
 
 ```
 String platform = new String("android");
 ``` 
 
-Dart 代码
+Dart code
 
 ```
 NativeObject version = context
@@ -173,13 +194,14 @@ NativeObject version = context
 
 ```
 
-### *在安卓系统中已知的问题，等待解决 
+> **Known problems in Android system, waiting to be solved**
 
-* 暂时不支持在代码混淆的工程中使用
-* 不支持泛型
+> - Currently, it is not supported in projects with code confusion;
+> - Generics are not supported.
 
-## 快捷组织双端代码
-提供了一个快捷的方法来 初始化和执行 context.
+### Fast organization of dual platform code
+
+We provide you with a quick way to initialize and execute context:
 
 ```
 static Future<Object> traversingNative(ObjCContextBuilder(ObjCContext objcContext), JAVAContextBuilder(JAVAContext javaContext)) async {
@@ -193,40 +215,42 @@ static Future<Object> traversingNative(ObjCContextBuilder(ObjCContext objcContex
     }
     return executeNativeContext(nativeContext);
 }
-  
 ```
-可以快速书写两端的原生调用
+
+So you can write the native call of two platforms quickly:
 
 ```
 platformVersion = await Dna.traversingNative((ObjCContext context) {
     NativeObject version = context.classFromString('UIDevice').invoke(method: 'currentDevice').invoke(method: 'systemVersion');
     version = context.classFromString("NSString").invoke(method: 'stringWithString:', args: ['iOS-']).invoke(method: 'stringByAppendingString:', args: [version]);
     
-    context.returnVar = version; // 该句可省略
+    context.returnVar = version; // Can be omitted
 }, (JAVAContext context) {
     NativeObject versionId = context.newJavaObjectFromConstructor('com.example.dna_example.DnaTest', null).invoke(method: 'getDnaVersion').invoke(method: 'getVersion');
     NativeObject version = context.newJavaObjectFromConstructor('java.lang.String', ["android "]).invoke(method: "concat", args: [versionId]);
     
-    context.returnVar = version; // 该句可省略
+    context.returnVar = version; // Can be omitted
 });
 ```
 
-# 原理简介
-`dna` 并不涉及` dart对象到Native对象的转换` ，也不关心 `Native对象的生命周期`，而是着重与描述原生方法调用的上下文，在 `context execute` 时通过 `channel` 调用一次原生方法，把调用栈以 `JSON` 的形式传过去供原生动态解析调用。
+## Principle introduction
 
-如前文的中 dart 代码
+dna **does not involve the transformation from a dart object to a native object**, it also **does not care about the life cycle of the native object**, but **focuses on describing the `context` of native method calls**, When `context.execute()` called, a native method is called through `channel`, and the call stack is passed in the form of `JSON` for native dynamic parsing and calling.
+
+for example,	Let's take a look at the previous Dart code:
 
 ```
 ObjCContext context = ObjCContext();
 NativeObject version = context.classFromString('UIDevice').invoke(method: 'currentDevice').invoke(method: 'systemVersion');
 version = context.classFromString("NSString").invoke(method: 'stringWithString:', args: ['iOS-']).invoke(method: 'stringByAppendingString:', args: [version]);
 
-context.returnVar = version; // 可省略设定最终返回值, 参考3
+context.returnVar = version; // Can be omitted, See: Quick use of instantiated objects in JSON supported
 
-// 直接获得原生执行结果
+// Get native execution results directly
 var versionString = await context.execute(); 
 ```
-`NativeContext的execute()` 方法，实际调用了
+
+What the `execute()` method of `NativeContext` actually called is the following method:
 
 ```
 static Future<Object> executeNativeContext(NativeContext context) async {
@@ -234,7 +258,7 @@ static Future<Object> executeNativeContext(NativeContext context) async {
 }
 ```
 
-在 `原生的 executeNativeContext` 对应执行的方法中，接收到的 `JSON` 是这样的
+In the native executed method corresponding to the `executeNativeContext` method, the received 'JSON' is as follows:
 
 ```
 {
@@ -283,11 +307,12 @@ static Future<Object> executeNativeContext(NativeContext context) async {
 	}]
 }
 ```
-我们在 `Native` 维护了一个 `objectsInContextMap` , `以objectId` 为键，以 `Native对象` 为值。
 
-`_invocationNodes` 便是方法的调用上下文, 看单个
+Then we maintain an `objectsInContextMap` on the native side, its key is `objectId`, and the value is native object.
 
-这里会动态调用 `[UIDevice currentDevice]`, 返回对象以 `returnVar中存储的"_objectId_KNWtiPuM" ` 为键放到 `objectsInContextMap` 里
+`_invocationNodes` is the call context of the method, let's take a look at one of them.
+
+Here we will dynamically call `[UIDevice currentDevice]`, and return the object to `objectsInContextMap` with `_objectId_KNWtiPuM` stored in `returnVar` as the key.
 
 ```
 {
@@ -302,7 +327,7 @@ static Future<Object> executeNativeContext(NativeContext context) async {
  },
 ```
 
-这里 `调用方法的对象的objectId` 是 `"_objectId_KNWtiPuM"` ，是上一个方法的返回值，从`objectsInContextMap` 中取出，继续动态调用，以 `returnVar的object_id为键` 存储新的返回值。
+Here, the object `_objectId_KNWtiPuM` is the returned value of the previous method. Take it out from the `objectsInContextMap`, continue the dynamic call, and store the new returned value with the `_objectId` of the `returnVar` as the key.
 
 ```
 {
@@ -310,12 +335,13 @@ static Future<Object> executeNativeContext(NativeContext context) async {
 		"_objectId": "_objectId_haPktBlL"
 	},
 	"object": {
-		"_objectId": "_objectId_KNWtiPuM" // 会在objectsInContextMap找到中真正的对象
+		"_objectId": "_objectId_KNWtiPuM" // Will find the real object in objectsInContextMap
 	},
 	"method": "systemVersion"
 }
 ```
-方法有参数时，支持自动装包和解包的，如 `int<->NSNumber..`, 如果参数是非 `channel` 规定的15种基本类型，是`NativeObject`, 我们会把对象从 `objectsInContextMap ` 中找出，放到实际的参数列表里
+
+dna supports automatic package loading and unpacking when the method has parameters, such as `int<->NSNumber`, If the parameter is not one of the 15 basic types specified by `channel` but `NativeObject`, we will find the object from `objectsInContextMap` and put it into the actual parameter list.
 
 ```
 {
@@ -324,29 +350,31 @@ static Future<Object> executeNativeContext(NativeContext context) async {
 	},
 	"method": "stringByAppendingString:",
 	"args": [{
-		"_objectId": "_objectId_haPktBlL" // 会在objectsInContextMap找到中真正的对象
+		"_objectId": "_objectId_haPktBlL" // Will find the real object in objectsInContextMap
 	}],
 	"returnVar": {
 		"_objectId": "_objectId_WyWRIsLl"
 }
 ```
-...
 
-如果设置了`最终的returnVar`, 将把该 `returnVar objectId` 对应的对象从 `objectsInContextMap` 中找出来，作为 `channel的返回值` 回调回去。如果没有设置，取最后一个 `invocation` 的返回值(如果有)。
+If final `returnVar` is set, The object corresponding to the `returnVar objectId` will be found from the `objectsInContextMap` and called back as the return value of the `channel `, if not, take the return value of the last `invocation`(if any).
 
-## 作者
-zyd178591@alibaba-inc.com, zhengguang.zzg@alibaba-inc.com, yongguang.lyg@alibaba-inc.com
+## Author
 
-## 更新日志
+- yongguang.lyg@alibaba-inc.com
+- zhengguang.zzg@alibaba-inc.com
+- zyd178591@alibaba-inc.com
+
+## Change log
 | version | note |
 | ------ | ------ | 
-| 0.1.0 | 能用 | 
+| 0.1.0 | alpha version | 
 
 ## License
 
-Stinger is available under the MIT license. See the LICENSE file for more info.
+dna is available under the MIT license. See the LICENSE file for more info.
 
-## 其他
+## Other Tips
 
-* 代码仓库近期会迁移到eleme下
-* 欢迎试用，建议和提交代码
+- Code warehouse will be migrated to **eleme** in the near future;
+- You are welcome to star, issue and PR.
