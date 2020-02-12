@@ -1,5 +1,5 @@
 # dna
-[中文文档](./README_CN.md)
+### [中文文档](./README_CN.md)
 A lightweight dart to native super channel plugin, You can use it to invoke any native code directly in dart code.
 
 Supported Platform(Language):
