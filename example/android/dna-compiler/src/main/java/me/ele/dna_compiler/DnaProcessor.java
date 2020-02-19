@@ -1,0 +1,140 @@
+package me.ele.dna_compiler;
+
+import com.squareup.javapoet.TypeName;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Filer;
+import javax.annotation.processing.Messager;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.RoundEnvironment;
+import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.TypeVariable;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
+
+import static javax.lang.model.element.ElementKind.CLASS;
+import static javax.lang.model.element.ElementKind.METHOD;
+import static javax.lang.model.element.Modifier.PRIVATE;
+
+public class DnaProcessor extends AbstractProcessor {
+
+    private Messager messager;
+    private Elements elementUtils;
+    private Filer filer;
+    private Types typeUtils;
+
+    /**
+     * `
+     * 初始化操作
+     *
+     * @param processingEnvironment
+     */
+    @Override
+    public synchronized void init(ProcessingEnvironment processingEnvironment) {
+        super.init(processingEnvironment);
+        typeUtils = processingEnvironment.getTypeUtils();
+        elementUtils = processingEnvironment.getElementUtils();
+        filer = processingEnvironment.getFiler();
+        messager = processingEnvironment.getMessager();
+    }
+
+    @Override
+    public Set<String> getSupportedOptions() {
+        return super.getSupportedOptions();
+    }
+
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.latestSupported();
+    }
+
+    @Override
+    public Set<String> getSupportedAnnotationTypes() {
+        Set<String> set = new LinkedHashSet<>();
+        set.add(DnaMethod.class.getCanonicalName());
+        return set;
+    }
+
+
+    @Override
+    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        List<DnaClassFinder> classFinders = getMethodInfos(roundEnv);
+        if (classFinders != null && !classFinders.isEmpty()) {
+            for (DnaClassFinder finder : classFinders) {
+                try {
+                    finder.createJavaFile().writeTo(filer);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return false;
+    }
+
+    private List<DnaClassFinder> getMethodInfos(RoundEnvironment roundEnv) {
+        DnaPackageFinder finder = new DnaPackageFinder();
+        String packageName;
+        Set<? extends Element> annotatedElements = roundEnv.getElementsAnnotatedWith(DnaMethod.class);
+        for (Element element : annotatedElements) {
+            if (!(element instanceof ExecutableElement) || element.getKind() != METHOD) {
+                throw new IllegalStateException("DnaMethod annotation must be on a method.");
+            }
+            boolean isReturn;
+            ExecutableElement executableElement = (ExecutableElement) element;
+            TypeElement enclosingElement = (TypeElement) element.getEnclosingElement();
+            String name = executableElement.getSimpleName().toString();
+            if (!isAccessible(element)) {
+                throw new IllegalStateException(" annotated method can't access.");
+            }
+            List<? extends VariableElement> parameters = executableElement.getParameters();
+            TypeMirror methodParameterType;
+            List<TypeName> paramterType = new ArrayList<>();
+            if (parameters != null && parameters.size() != 0) {
+                for (VariableElement variableElement : parameters) {
+                    methodParameterType = variableElement.asType();
+                    if (methodParameterType instanceof TypeVariable) {
+                        TypeVariable typeVariable = (TypeVariable) methodParameterType;
+                        methodParameterType = typeVariable.getUpperBound();
+                    }
+                    paramterType.add(TypeName.get(methodParameterType));
+
+                }
+            }
+            TypeMirror returnType = executableElement.getReturnType();
+            isReturn = returnType != null && returnType.getKind() != TypeKind.VOID;
+            packageName = elementUtils.getPackageOf(element).getQualifiedName().toString();
+            finder.addMethodInfo(packageName, new DnaMethodInfo(paramterType, name, enclosingElement, isReturn));
+        }
+        return finder.getInfoList();
+
+    }
+
+    private boolean isAccessible(Element element) {
+        Set<Modifier> modifiers = element.getModifiers();
+        TypeElement enclosingElement = (TypeElement) element.getEnclosingElement();
+
+        if (modifiers.contains(PRIVATE)) {
+            return false;
+        }
+
+        if (enclosingElement.getKind() != CLASS || enclosingElement.getModifiers().contains(PRIVATE)) {
+            return false;
+        }
+
+        return true;
+    }
+
+}
