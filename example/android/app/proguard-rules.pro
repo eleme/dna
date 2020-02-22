@@ -33,4 +33,3 @@
 
 -keep class **.Dna_Method_Proxy { *; }
 
-

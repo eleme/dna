@@ -10,5 +10,7 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 @Target(METHOD)
 @Retention(CLASS)
 public @interface DnaParamFieldList {
+    String owner();
+
     String[] params();
 }

@@ -3,6 +3,8 @@ package me.ele.dna_compiler;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.lang.model.element.TypeElement;
+
 public class DnaPackageFinder {
 
     private List<DnaClassFinder> infoList;
@@ -11,7 +13,7 @@ public class DnaPackageFinder {
         infoList = new ArrayList<>();
     }
 
-    public void addMethodInfo(String packgeName, DnaMethodInfo methodInfo) {
+    public void addMethodInfo(String packgeName, DnaElement methodInfo) {
         DnaClassFinder temProxy;
         if (infoList == null) {
             infoList = new ArrayList<>();

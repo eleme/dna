@@ -1,49 +1,32 @@
 package me.ele.dna_compiler;
 
-import com.squareup.javapoet.TypeName;
-
+import com.squareup.javapoet.MethodSpec;
 import java.util.List;
-
 import javax.lang.model.element.TypeElement;
 
-public class DnaMethodInfo {
+public class DnaMethodInfo extends DnaElement {
 
-    List<TypeName> paramterType;
-    String methodName;
-    TypeElement enclosingElement;
-    boolean isReturn;
+    private boolean isReturn;
 
-    public DnaMethodInfo(List<TypeName> paramterType, String methodName, TypeElement enclosingElement, boolean isReturn) {
-        this.paramterType = paramterType;
-        this.methodName = methodName;
-        this.enclosingElement = enclosingElement;
+    public DnaMethodInfo(List<ParamInfo> paramterType, TypeElement enclosingElement, String methodName, boolean isReturn) {
+        super(paramterType, enclosingElement, methodName);
         this.isReturn = isReturn;
     }
 
-    public List<TypeName> getParamterType() {
-        return paramterType;
-    }
-
-    public String getMethodName() {
-        return methodName;
-    }
-
-    public TypeElement getEnclosingElement() {
-        return enclosingElement;
-    }
-
     public String getClassName() {
-        String qualifiedName = null;
         if (enclosingElement != null) {
-            qualifiedName = enclosingElement.getQualifiedName().toString();
-        }
-        if (qualifiedName != null) {
-            return qualifiedName.replace(".", "_");
+            return enclosingElement.getSimpleName().toString();
+
         }
         return "";
     }
 
     public boolean isReturn() {
         return isReturn;
+    }
+
+    @Override
+    public MethodSpec createMethod() {
+        return null;
     }
 }

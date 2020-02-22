@@ -41,6 +41,12 @@ public class MethodTacker {
         return argsElements;
     }
 
+    public List<Object> getReleaseArgs(List<ParameterInfo> args, Object owner) throws ArgsException {
+        List<Object> paramas = getArgs(args);
+        paramas.add(0, owner);
+        return paramas;
+    }
+
     public static boolean isString(Class clz) {
         if (clz.getName().equals(String.class.getName())) {
             return true;

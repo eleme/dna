@@ -1,5 +1,6 @@
 package me.ele.dna_compiler;
 
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
 import java.io.IOException;
@@ -26,6 +27,7 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
 import static javax.lang.model.element.ElementKind.CLASS;
+import static javax.lang.model.element.ElementKind.CONSTRUCTOR;
 import static javax.lang.model.element.ElementKind.METHOD;
 import static javax.lang.model.element.Modifier.PRIVATE;
 
@@ -76,7 +78,7 @@ public class DnaProcessor extends AbstractProcessor {
             for (DnaClassFinder finder : classFinders) {
                 try {
                     finder.createJavaFile().writeTo(filer);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -88,20 +90,22 @@ public class DnaProcessor extends AbstractProcessor {
         DnaPackageFinder finder = new DnaPackageFinder();
         String packageName;
         Set<? extends Element> annotatedElements = roundEnv.getElementsAnnotatedWith(DnaMethod.class);
+        DnaElement dnaElement;
         for (Element element : annotatedElements) {
-            if (!(element instanceof ExecutableElement) || element.getKind() != METHOD) {
+            if (!(element instanceof ExecutableElement) || (element.getKind() != METHOD && element.getKind() != CONSTRUCTOR)) {
                 throw new IllegalStateException("DnaMethod annotation must be on a method.");
             }
             boolean isReturn;
             ExecutableElement executableElement = (ExecutableElement) element;
             TypeElement enclosingElement = (TypeElement) element.getEnclosingElement();
-            String name = executableElement.getSimpleName().toString();
+            String methodName;
             if (!isAccessible(element)) {
                 throw new IllegalStateException(" annotated method can't access.");
             }
             List<? extends VariableElement> parameters = executableElement.getParameters();
             TypeMirror methodParameterType;
-            List<TypeName> paramterType = new ArrayList<>();
+            packageName = elementUtils.getPackageOf(element).getQualifiedName().toString();
+            List<ParamInfo> paramterType = new ArrayList<>();
             if (parameters != null && parameters.size() != 0) {
                 for (VariableElement variableElement : parameters) {
                     methodParameterType = variableElement.asType();
@@ -109,14 +113,21 @@ public class DnaProcessor extends AbstractProcessor {
                         TypeVariable typeVariable = (TypeVariable) methodParameterType;
                         methodParameterType = typeVariable.getUpperBound();
                     }
-                    paramterType.add(TypeName.get(methodParameterType));
+                    paramterType.add(new ParamInfo(methodParameterType.toString(), TypeName.get(methodParameterType)));
 
                 }
             }
-            TypeMirror returnType = executableElement.getReturnType();
-            isReturn = returnType != null && returnType.getKind() != TypeKind.VOID;
-            packageName = elementUtils.getPackageOf(element).getQualifiedName().toString();
-            finder.addMethodInfo(packageName, new DnaMethodInfo(paramterType, name, enclosingElement, isReturn));
+            if (element.getKind() == CONSTRUCTOR) {
+                methodName = enclosingElement.getSimpleName().toString();
+                dnaElement = new DnaConstructorInfo(paramterType, enclosingElement, DnaConstants.PROXYCONSTRUCTOR.concat(methodName));
+            } else {
+                methodName = executableElement.getSimpleName().toString();
+                TypeMirror returnType = executableElement.getReturnType();
+                isReturn = returnType != null && returnType.getKind() != TypeKind.VOID;
+                dnaElement = new DnaMethodInfo(paramterType, enclosingElement, DnaConstants.PROXYMETHOD.concat(methodName), isReturn);
+            }
+
+            finder.addMethodInfo(packageName, dnaElement);
         }
         return finder.getInfoList();
 

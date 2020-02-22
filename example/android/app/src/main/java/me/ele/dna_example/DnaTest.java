@@ -5,7 +5,8 @@ import me.ele.dna_compiler.DnaMethod;
 
 public class DnaTest {
 
-    public DnaTest() {
+    @DnaMethod
+    public DnaTest(DnaVersion a) {
     }
 
     @DnaMethod

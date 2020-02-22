@@ -20,6 +20,7 @@ import java.util.Map;
 
 import me.ele.dna.exception.AbnormalMethodException;
 import me.ele.dna.exception.ArgsException;
+import me.ele.dna_compiler.DnaConstants;
 
 /**
  * Author: Zhiqing.Zhang
@@ -100,26 +101,44 @@ public class DnaClient {
             methodObj = methods.get(methodName);
         }
         if (methodObj == null || !methodObj.checkParam(param)) {
-            methodObj = getReflectMethod(className, methodName, param);
+            methodObj = getReleaseReflectMethod(owner, className, methodName, param);
             methods.put(methodName, methodObj);
         }
         if (methodObj == null) {
             throw new AbnormalMethodException("method exception");
         }
-        List<Object> args = new MethodTacker(methodObj).getArgs(param);
-        return reflectMethod(methodObj.getMethod(), owner, args != null ? args.toArray() : null);
+        MethodTacker methodTacker = new MethodTacker(methodObj);
+        List<Object> args = isRelease() ? methodTacker.getReleaseArgs(param, owner) :
+                methodTacker.getArgs(param);
+        return reflectMethod(methodObj.getMethod(), isRelease() ? null : owner, args != null ? args.toArray() : null);
     }
 
-    private MethodInfo getReflectMethod(String className, String methodName, List<ParameterInfo> param) throws ClassNotFoundException {
+    private boolean isRelease() {
+        return true;
+    }
+
+    @Deprecated
+    private MethodInfo getReflectMethod(Object owner, String className, String methodName, List<ParameterInfo> param) throws ClassNotFoundException {
         Class<?> invokeClass = classCahe.get(className);
         if (invokeClass == null) {
             invokeClass = Class.forName(className);
             classCahe.put(className, invokeClass);
         }
-        MethodFinder finder = new MethodFinder(invokeClass, methodName, param);
+        MethodFinder finder = new MethodFinder(owner, invokeClass, methodName, param);
         return finder.getReflectMethodFromClazz();
     }
 
+    private MethodInfo getReleaseReflectMethod(Object owner, String className, String methodName, List<ParameterInfo> param) throws ClassNotFoundException {
+        className = className.substring(0, className.lastIndexOf(".")) + DnaConstants.PROXYCLASS;
+        methodName = className.substring(className.lastIndexOf(".")) + methodName;
+        Class<?> invokeClass = classCahe.get(className);
+        if (invokeClass == null) {
+            invokeClass = Class.forName(className);
+            classCahe.put(className, invokeClass);
+        }
+        MethodFinder finder = new MethodFinder(owner,invokeClass, methodName, param);
+        return finder.getReleaseReflectMethodFromClazz();
+    }
 
     /**
      * 构造函数
