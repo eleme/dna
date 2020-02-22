@@ -31,5 +31,5 @@
 -optimizations !code/simplification/arithmetic,!field/*,!class/merging/* #优化配置
 -ignorewarnings #忽略警告
 
--keep class **.Dna_Method_Proxy { *; }
+-keep class **.Dna_Class_Proxy { *; }
 
