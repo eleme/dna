@@ -16,12 +16,18 @@ public class MethodInfo {
 
     List<Class<?>> args;
 
+    String returnType;
 
-    public MethodInfo(Method method, List<Class<?>> args) {
+
+    public MethodInfo(Method method, List<Class<?>> args, String returnType) {
         this.method = method;
         this.args = args;
+        this.returnType = returnType;
     }
 
+    public String getReturnType() {
+        return returnType;
+    }
 
     public Method getMethod() {
         return method;

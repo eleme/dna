@@ -117,14 +117,15 @@ public class DnaProcessor extends AbstractProcessor {
 
                 }
             }
+            TypeMirror returnType = executableElement.getReturnType();
+            String reutrnName = returnType.toString();
             if (element.getKind() == CONSTRUCTOR) {
                 methodName = enclosingElement.getSimpleName().toString();
-                dnaElement = new DnaConstructorInfo(paramterType, enclosingElement, DnaConstants.PROXYCONSTRUCTOR.concat(methodName));
+                dnaElement = new DnaConstructorInfo(paramterType, enclosingElement, DnaConstants.PROXYCONSTRUCTOR.concat(methodName), reutrnName);
             } else {
                 methodName = executableElement.getSimpleName().toString();
-                TypeMirror returnType = executableElement.getReturnType();
                 isReturn = returnType != null && returnType.getKind() != TypeKind.VOID;
-                dnaElement = new DnaMethodInfo(paramterType, enclosingElement, methodName, isReturn);
+                dnaElement = new DnaMethodInfo(paramterType, enclosingElement, methodName, isReturn, reutrnName);
             }
 
             finder.addMethodInfo(packageName, dnaElement);

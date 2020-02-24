@@ -1,10 +1,14 @@
 package me.ele.dna;
 
+import android.util.Log;
+
 import me.ele.dna.model.DnaClassInfo;
 import me.ele.dna.model.ParameterInfo;
+import me.ele.dna.model.ResultInfo;
 import me.ele.dna.util.DnaUtils;
 import me.ele.dna.util.GsonUtils;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,10 +54,22 @@ public class DnaPlugin implements MethodCallHandler {
             try {
                 excuteNativeMethod(call, result);
             } catch (Exception e) {
+                Log.i("ceshi", "test" + e.getStackTrace());
                 e.printStackTrace();
             }
         } else {
             result.notImplemented();
+        }
+    }
+
+    private void test() {
+        try {
+            Method method = Class.forName("me.ele.dna_example.Dna_Class_Proxy").getMethod("Dna_Constructor_ProxyDnaTest");
+            Object o = method.invoke(null);
+            Log.i("ceshi", "test" + o.toString());
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -105,15 +121,19 @@ public class DnaPlugin implements MethodCallHandler {
                 currentObject = ((DnaClassInfo) ownerObject).isConstrcut()
                         ? DnaClient.getClient().invokeConstructorMethod(((DnaClassInfo) ownerObject).getClassName(), parameterInfos)
                         : DnaClient.getClient().invokeMethod(((DnaClassInfo) ownerObject).getClassName(), null, methodName, parameterInfos);
+            } else if (ownerObject instanceof ResultInfo) {
+                currentObject = DnaClient.getClient().invokeMethod(((ResultInfo) ownerObject).getReturnType(), ((ResultInfo) ownerObject).getObject(), methodName, parameterInfos);
             } else {
-                currentObject = DnaClient.getClient().invokeMethod(ownerObject.getClass().getName(), ownerObject, methodName, parameterInfos);
+                throw new Exception("Abnormal Error");
             }
             valueMap.put(returnId, currentObject);
             if (returnId != null && returnId.equals(finalReturnVarId)) {
-                result.success(valueMap.get(returnId));
+                Object o = valueMap.get(returnId);
+                result.success(o instanceof ResultInfo ? ((ResultInfo) o).getObject() : o);
             }
         }
-        result.success(currentObject);
+        result.success(currentObject instanceof ResultInfo ? ((ResultInfo) currentObject).getObject() : currentObject);
+
     }
 
 

@@ -1,13 +1,18 @@
 package me.ele.dna;
 
+import android.util.Log;
+
 import me.ele.dna.exception.AbnormalConstructorException;
 import me.ele.dna.exception.AbnormalMethodException;
 import me.ele.dna.exception.ArgsException;
 import me.ele.dna.finder.ConstructorFinder;
+import me.ele.dna.finder.DnaFinder;
 import me.ele.dna.finder.MethodFinder;
+import me.ele.dna.finder.ProxyFinder;
 import me.ele.dna.model.MethodInfo;
 import me.ele.dna.model.MethodTacker;
 import me.ele.dna.model.ParameterInfo;
+import me.ele.dna.model.ResultInfo;
 import me.ele.dna.util.DnaUtils;
 
 import java.lang.reflect.Constructor;
@@ -18,8 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import me.ele.dna.exception.AbnormalMethodException;
-import me.ele.dna.exception.ArgsException;
 import me.ele.dna_compiler.DnaConstants;
 
 /**
@@ -59,11 +62,19 @@ public class DnaClient {
      * @param param
      * @return
      * @throws ClassNotFoundException
-     * @throws InstantiationException
      * @throws IllegalAccessException
-     * @throws InvocationTargetException
      */
-    public Object invokeConstructorMethod(String className, List<ParameterInfo> param)
+    public ResultInfo invokeConstructorMethod(String className, List<ParameterInfo> param)
+            throws ClassNotFoundException, ArgsException, AbnormalMethodException {
+        return invokeReleaseConstructorMethod(className, param);
+    }
+
+    public ResultInfo invokeReleaseConstructorMethod(String className, List<ParameterInfo> param) throws ArgsException, ClassNotFoundException, AbnormalMethodException {
+        String methodName = DnaConstants.PROXYCONSTRUCTOR.concat(className.substring(className.lastIndexOf(".") + 1));
+        return invokeConstructMethod(className, methodName, param);
+    }
+
+    public Object invokeCommonConstructorMethod(String className, List<ParameterInfo> param)
             throws ClassNotFoundException, InstantiationException, IllegalAccessException, AbnormalConstructorException, InvocationTargetException {
         Class<?> constructorClass = classConstructiorCahe.get(className);
         if (constructorClass == null) {
@@ -74,9 +85,7 @@ public class DnaClient {
         if (DnaUtils.isEmpty(param)) {
             return constructorClass.newInstance();
         }
-
         return constructorOwner(constructorClass, param);
-
     }
 
     /**
@@ -91,7 +100,7 @@ public class DnaClient {
      * @throws ClassNotFoundException
      * @throws AbnormalMethodException
      */
-    public Object invokeMethod(String className, Object owner, String methodName, List<ParameterInfo> param) throws ArgsException, ClassNotFoundException, AbnormalMethodException {
+    public ResultInfo invokeMethod(String className, Object owner, String methodName, List<ParameterInfo> param) throws ArgsException, ClassNotFoundException, AbnormalMethodException {
         Map<String, MethodInfo> methods = methodCache.get(className);
         MethodInfo methodObj = null;
         if (methods == null) {
@@ -101,43 +110,70 @@ public class DnaClient {
             methodObj = methods.get(methodName);
         }
         if (methodObj == null || !methodObj.checkParam(param)) {
-            methodObj = getReleaseReflectMethod(owner, className, methodName, param);
+            methodObj = getMethod(false, className, methodName, param);
             methods.put(methodName, methodObj);
         }
         if (methodObj == null) {
             throw new AbnormalMethodException("method exception");
         }
         MethodTacker methodTacker = new MethodTacker(methodObj);
-        List<Object> args = isRelease() ? methodTacker.getReleaseArgs(param, owner) :
+        List<Object> args = isRelease() ? methodTacker.getReleaseArgs(param, owner, false) :
                 methodTacker.getArgs(param);
-        return reflectMethod(methodObj.getMethod(), isRelease() ? null : owner, args != null ? args.toArray() : null);
+        Object returnResult = reflectMethod(methodObj.getMethod(), isRelease() ? null : owner, args != null ? args.toArray() : null);
+        return new ResultInfo(returnResult, methodObj.getReturnType());
+    }
+
+    public ResultInfo invokeConstructMethod(String className, String methodName, List<ParameterInfo> param) throws ArgsException, ClassNotFoundException, AbnormalMethodException {
+        Map<String, MethodInfo> methods = methodCache.get(className);
+        MethodInfo methodObj = null;
+        if (methods == null) {
+            methods = new HashMap<>();
+        }
+        if (!methods.isEmpty()) {
+            methodObj = methods.get(methodName);
+        }
+        if (methodObj == null || !methodObj.checkParam(param)) {
+            methodObj = getMethod(true, className, methodName, param);
+            methods.put(methodName, methodObj);
+        }
+        if (methodObj == null) {
+            throw new AbnormalMethodException("method exception");
+        }
+        MethodTacker methodTacker = new MethodTacker(methodObj);
+        List<Object> args = methodTacker.getArgs(param);
+        Object returnResult = reflectMethod(methodObj.getMethod(), null, args != null ? args.toArray() : null);
+        return new ResultInfo(returnResult, methodObj.getReturnType());
     }
 
     private boolean isRelease() {
         return true;
     }
 
-    @Deprecated
-    private MethodInfo getReflectMethod(Object owner, String className, String methodName, List<ParameterInfo> param) throws ClassNotFoundException {
+    private MethodInfo getMethod(boolean isConstruct, String className, String methodName, List<ParameterInfo> param) throws ClassNotFoundException {
+        return isRelease() ? getReleaseReflectMethod(isConstruct, className, methodName, param) : getReflectMethod(className, methodName, param);
+    }
+
+    private MethodInfo getReflectMethod(String className, String methodName, List<ParameterInfo> param) throws ClassNotFoundException {
         Class<?> invokeClass = classCahe.get(className);
         if (invokeClass == null) {
             invokeClass = Class.forName(className);
             classCahe.put(className, invokeClass);
         }
-        MethodFinder finder = new MethodFinder(owner, invokeClass, methodName, param);
+        MethodFinder finder = MethodFinder.build(invokeClass, methodName, param);
         return finder.getReflectMethodFromClazz();
     }
 
-    private MethodInfo getReleaseReflectMethod(Object owner, String className, String methodName, List<ParameterInfo> param) throws ClassNotFoundException {
-        className = className.substring(0, className.lastIndexOf(".")) + DnaConstants.PROXYCLASS;
-        methodName = className.substring(className.lastIndexOf(".")) + methodName;
+    private MethodInfo getReleaseReflectMethod(boolean isConstruct, String className, String methodName, List<ParameterInfo> param) throws ClassNotFoundException {
+        Log.i("ceshi", "getReleaseReflectMethod:" + className);
+        methodName = isConstruct ? methodName : className.substring(className.lastIndexOf(".") + 1) + "_" + methodName;
+        className = className.substring(0, className.lastIndexOf(".") + 1) + DnaConstants.PROXYCLASS;
         Class<?> invokeClass = classCahe.get(className);
         if (invokeClass == null) {
             invokeClass = Class.forName(className);
             classCahe.put(className, invokeClass);
         }
-        MethodFinder finder = new MethodFinder(owner,invokeClass, methodName, param);
-        return finder.getReleaseReflectMethodFromClazz();
+        DnaFinder finder = ProxyFinder.build(invokeClass, methodName, param, isConstruct);
+        return finder.getReflectMethodFromClazz();
     }
 
     /**
@@ -165,7 +201,7 @@ public class DnaClient {
 
     private Object reflectMethod(Method method, Object owner, Object... args) {
         try {
-            return method.invoke(owner, args);
+            return method.invoke(owner, (args == null || args.length == 0) ? null : args);
         } catch (InvocationTargetException e) {
             DLog.i(e.getMessage());
         } catch (IllegalAccessException e) {

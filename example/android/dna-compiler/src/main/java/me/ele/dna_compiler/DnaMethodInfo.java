@@ -6,14 +6,15 @@ import com.squareup.javapoet.TypeName;
 
 import java.util.List;
 
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 
 public class DnaMethodInfo extends DnaElement {
 
     private boolean isReturn;
 
-    public DnaMethodInfo(List<ParamInfo> paramterType, TypeElement enclosingElement, String methodName, boolean isReturn) {
-        super(paramterType, enclosingElement, methodName);
+    public DnaMethodInfo(List<ParamInfo> paramterType, TypeElement enclosingElement, String methodName, boolean isReturn, String returnType) {
+        super(paramterType, enclosingElement, methodName, returnType);
         this.isReturn = isReturn;
     }
 
@@ -32,7 +33,7 @@ public class DnaMethodInfo extends DnaElement {
     @Override
     public MethodSpec createMethod() {
         MethodSpec.Builder mehthodBuidler;
-        mehthodBuidler = MethodSpec.methodBuilder(getClassName() + "_" + methodName).
+        mehthodBuidler = MethodSpec.methodBuilder(getClassName() + "_" + methodName).addModifiers(Modifier.PUBLIC, Modifier.STATIC).
                 returns(isReturn ? Object.class : Void.class);
         String parament = "";
         String annotionSpc = "{";
@@ -72,6 +73,7 @@ public class DnaMethodInfo extends DnaElement {
         }
         AnnotationSpec spec = AnnotationSpec.builder(DnaParamFieldList.class).addMember("params", annotionSpc, annotionList)
                 .addMember("owner", "$S", enclosingElement.getQualifiedName().toString())
+                .addMember("returnType", "$S", returnType)
                 .build();
         mehthodBuidler.addStatement(stateMement, objects).addAnnotation(spec);
         return mehthodBuidler.build();

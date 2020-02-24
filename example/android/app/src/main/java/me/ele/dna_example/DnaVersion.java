@@ -5,17 +5,13 @@ import me.ele.dna_compiler.DnaMethod;
 
 public class DnaVersion {
 
+    @DnaMethod
     public DnaVersion() {
     }
 
     @DnaMethod
-    public String getVersion(DnaTest test) {
+    public String getVersion() {
         return android.os.Build.VERSION.RELEASE;
     }
-
-    public String getVersion2() {
-        return android.os.Build.VERSION.RELEASE;
-    }
-
 
 }

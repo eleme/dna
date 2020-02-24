@@ -6,19 +6,21 @@ import com.squareup.javapoet.TypeName;
 
 import java.util.List;
 
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 
 public class DnaConstructorInfo extends DnaElement {
 
-    public DnaConstructorInfo(List<ParamInfo> paramterType, TypeElement enclosingElement, String methodName) {
-        super(paramterType, enclosingElement, methodName);
+
+    public DnaConstructorInfo(List<ParamInfo> paramterType, TypeElement enclosingElement, String methodName, String returnType) {
+        super(paramterType, enclosingElement, methodName, returnType);
     }
 
     @Override
     public MethodSpec createMethod() {
         MethodSpec.Builder mehthodBuidler;
         mehthodBuidler = MethodSpec.methodBuilder(methodName).
-                returns(TypeName.get(enclosingElement.asType()));
+                returns(TypeName.get(enclosingElement.asType())).addModifiers(Modifier.PUBLIC, Modifier.STATIC);
         String parament = "";
         String annotionSpc = "{";
         String[] annotionList = new String[]{};
@@ -49,6 +51,7 @@ public class DnaConstructorInfo extends DnaElement {
         }
         AnnotationSpec spec = AnnotationSpec.builder(DnaParamFieldList.class).addMember("params", annotionSpc, annotionList)
                 .addMember("owner", "$S", "")
+                .addMember("returnType", "$S", enclosingElement.getQualifiedName().toString())
                 .build();
         mehthodBuidler.addStatement(stateMement, objects).addAnnotation(spec);
         return mehthodBuidler.build();

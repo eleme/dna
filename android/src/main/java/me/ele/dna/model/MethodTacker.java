@@ -41,10 +41,25 @@ public class MethodTacker {
         return argsElements;
     }
 
-    public List<Object> getReleaseArgs(List<ParameterInfo> args, Object owner) throws ArgsException {
-        List<Object> paramas = getArgs(args);
-        paramas.add(0, owner);
-        return paramas;
+    public List<Object> getReleaseArgs(List<ParameterInfo> args, Object owner, boolean isConstruct) throws ArgsException {
+        if (info == null) {
+            return null;
+        }
+        List<Class<?>> reflectArgs = info.getArgs();
+        if (reflectArgs == null || args == null) {
+            return null;
+        }
+        if (!isConstruct && reflectArgs.size() != args.size() + 1) {
+            throw new ArgsException("Args size error");
+        }
+        List<Object> argsElements = new ArrayList<>();
+        if (!isConstruct) {
+            argsElements.add(0, owner);
+        }
+        for (int i = 1; i < reflectArgs.size(); i++) {
+            argsElements.add(isString(reflectArgs.get(i)) ? args.get(i - 1).getContent() : GsonUtils.fromJson(args.get(i - 1).getContent(), reflectArgs.get(i)));
+        }
+        return argsElements;
     }
 
     public static boolean isString(Class clz) {

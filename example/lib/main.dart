@@ -12,6 +12,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
+
   @override
   void initState() {
     super.initState();
@@ -25,13 +26,22 @@ class _MyAppState extends State<MyApp> {
 
     try {
       platformVersion = await Dna.traversingNative((ObjCContext context) {
-        NativeObject version = context.classFromString('UIDevice').invoke(method: 'currentDevice').invoke(method: 'systemVersion');
-        version = context.classFromString("NSString").invoke(method: 'stringWithString:', args: ['iOS-']).invoke(method: 'stringByAppendingString:', args: [version]);
+        NativeObject version = context
+            .classFromString('UIDevice')
+            .invoke(method: 'currentDevice')
+            .invoke(method: 'systemVersion');
+        version = context
+            .classFromString("NSString")
+            .invoke(method: 'stringWithString:', args: ['iOS-']).invoke(
+                method: 'stringByAppendingString:', args: [version]);
         context.returnVar = version; // 该句可省略
       }, (JAVAContext context) {
-        NativeObject versionId = context.newJavaObjectFromConstructor('me.ele.dna_example.DnaTest', null).invoke(method: 'getDnaVersion').invoke(method: 'getVersion');
-        NativeObject version = context.newJavaObjectFromConstructor('java.lang.String', ["android "]).invoke(method: "concat", args: [versionId]);
-        context.returnVar = version; // 该句可省略
+        NativeObject versionId = context
+            .newJavaObjectFromConstructor('me.ele.dna_example.DnaTest', null)
+            .invoke(method: 'getDnaVersion')
+            .invoke(method: 'getVersion');
+        //NativeObject version = context.newJavaObjectFromConstructor('java.lang.String', ["android "]).invoke(method: "concat", args: [versionId]);
+        context.returnVar = versionId; // 该句可省略
       });
 
       // ObjCContext context = ObjCContext();
