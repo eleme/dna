@@ -8,7 +8,7 @@ import java.util.List;
 import me.ele.dna.model.MethodInfo;
 import me.ele.dna.model.ParameterInfo;
 import me.ele.dna.util.DnaUtils;
-import me.ele.dna_compiler.DnaParamFieldList;
+import me.ele.dna_annotations.DnaParamFieldList;
 
 public class ProxyFinder extends DnaFinder {
 

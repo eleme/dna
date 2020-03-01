@@ -2,8 +2,6 @@ apply plugin: 'java-library'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.squareup:javapoet:1.12.1'
-    implementation project(':dna-annotations')
 }
 
 sourceCompatibility = "1.7"

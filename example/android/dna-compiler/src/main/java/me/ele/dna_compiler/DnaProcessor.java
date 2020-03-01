@@ -1,9 +1,7 @@
 package me.ele.dna_compiler;
 
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -25,6 +23,8 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+
+import me.ele.dna_annotations.DnaMethod;
 
 import static javax.lang.model.element.ElementKind.CLASS;
 import static javax.lang.model.element.ElementKind.CONSTRUCTOR;

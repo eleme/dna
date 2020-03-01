@@ -3,8 +3,6 @@ package me.ele.dna_compiler;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.lang.model.element.TypeElement;
-
 public class DnaPackageFinder {
 
     private List<DnaClassFinder> infoList;

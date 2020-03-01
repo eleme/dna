@@ -4,7 +4,7 @@ import android.os.Bundle;
 
 import io.flutter.app.FlutterActivity;
 import io.flutter.plugins.GeneratedPluginRegistrant;
-import me.ele.dna_compiler.DnaMethod;
+import me.ele.dna_annotations.DnaMethod;
 
 public class MainActivity extends FlutterActivity {
     @Override

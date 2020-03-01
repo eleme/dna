@@ -66,14 +66,17 @@ public class DnaClient {
      */
     public ResultInfo invokeConstructorMethod(String className, List<ParameterInfo> param)
             throws ClassNotFoundException, ArgsException, AbnormalMethodException, IllegalAccessException, InstantiationException, AbnormalConstructorException, InvocationTargetException {
+        boolean isProxy = false;
         if (!TextUtils.isEmpty(className) && (className.startsWith("android.") || className.startsWith("java."))) {
             try {
                 Class.forName(className);
             } catch (ClassNotFoundException e) {
-                String methodName = DnaConstants.PROXYCONSTRUCTOR.concat(className.substring(className.lastIndexOf(".") + 1));
-                return invokeMethod(true, className, null, methodName, param);
+                isProxy = true;
             }
         } else {
+            isProxy = true;
+        }
+        if (isProxy) {
             String methodName = DnaConstants.PROXYCONSTRUCTOR.concat(className.substring(className.lastIndexOf(".") + 1));
             return invokeMethod(true, className, null, methodName, param);
         }
@@ -138,12 +141,11 @@ public class DnaClient {
                     invokeClass = Class.forName(className);
                 } catch (ClassNotFoundException e) {
                     isProxy = true;
-                    methodName = isConstruct ? methodName : className.substring(className.lastIndexOf(".") + 1) + "_" + methodName;
-                    className = className.substring(0, className.lastIndexOf(".") + 1) + DnaConstants.PROXYCLASS;
-                    invokeClass = Class.forName(className);
                 }
             } else {
                 isProxy = true;
+            }
+            if (isProxy) {
                 methodName = isConstruct ? methodName : className.substring(className.lastIndexOf(".") + 1) + "_" + methodName;
                 className = className.substring(0, className.lastIndexOf(".") + 1) + DnaConstants.PROXYCLASS;
                 invokeClass = Class.forName(className);

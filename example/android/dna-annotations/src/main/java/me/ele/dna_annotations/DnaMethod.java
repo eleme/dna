@@ -1,4 +1,4 @@
-package me.ele.dna_compiler;
+package me.ele.dna_annotations;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
