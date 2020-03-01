@@ -1,7 +1,5 @@
 package me.ele.dna.finder;
 
-import android.util.Log;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -21,72 +19,41 @@ public abstract class DnaFinder {
 
     protected List<String> paramType;
 
-    public DnaFinder(Class<?> invokeClass, String methodName, List<String> paramType) {
+    protected boolean isConstruct;
+
+    public DnaFinder(Class<?> invokeClass, String methodName, List<String> paramType, boolean isConstruct) {
         this.invokeClass = invokeClass;
         this.methodName = methodName;
         this.paramType = paramType;
+        this.isConstruct = isConstruct;
     }
 
-    protected abstract ProxyFinder.MethodWithReturnType getExactMethod(List<Method> methods);
+    protected abstract MethodInfo getExactMethod(List<Method> methods);
 
     public MethodInfo getReflectMethodFromClazz() {
-        Log.i("ceshi", "methodName:" + methodName);
         List<Method> tempMethodList = new ArrayList<>();
         Method[] methods = invokeClass.getMethods();
         if (methods == null) {
             return null;
         }
-        MethodInfo methodInfo = null;
         for (Method method : methods) {
             int modifier = method.getModifiers();
             if ((modifier & Modifier.PUBLIC) != 0 && (modifier & MODIFIERS_UN) == 0) {
-                String name = method.getName();
-                Log.i("ceshi", "methodName:" + name);
                 if (methodName.equals(method.getName())) {
                     tempMethodList.add(method);
                 }
             }
         }
-        Log.i("ceshi", "tempMethodList:" + tempMethodList.size());
-        MethodWithReturnType method = getExactMethod(tempMethodList);
-        if (method != null) {
-            methodInfo = createMethod(method.getMethod(), method.getReturnType());
-        }
-        return methodInfo;
+        return getExactMethod(tempMethodList);
     }
 
     protected MethodInfo createMethod(Method method, String returnType) {
         MethodInfo methodInfo = null;
         if (method != null) {
             Class<?>[] parameterTypes = method.getParameterTypes();
-            methodInfo = new MethodInfo(method, Arrays.asList(parameterTypes), returnType);
+            methodInfo = new MethodInfo(method, Arrays.asList(parameterTypes), returnType, this instanceof ProxyFinder, isConstruct);
         }
         return methodInfo;
     }
 
-    class MethodWithReturnType {
-        Method method;
-        String returnType;
-
-        public MethodWithReturnType(Method method, String returnType) {
-            this.method = method;
-            this.returnType = returnType;
-        }
-
-        public Method getMethod() {
-            return method;
-        }
-
-        public void setMethod(Method method) {
-            this.method = method;
-        }
-
-        public String getReturnType() {
-            return returnType;
-        }
-
-        public void setReturnType(String returnType) {
-            this.returnType = returnType;
-        }
-    }
 }

@@ -7,7 +7,6 @@ import me.ele.dna.util.DnaUtils;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -16,7 +15,7 @@ import java.util.List;
  */
 public class MethodFinder extends DnaFinder {
 
-    public static MethodFinder build(Class<?> invokeClass, String methodName, List<ParameterInfo> paramInfoList) {
+    public static MethodFinder build(Class<?> invokeClass, String methodName, List<ParameterInfo> paramInfoList, boolean isConstruct) {
         List<String> paramType = new ArrayList<>();
         if (!DnaUtils.isEmpty(paramInfoList)) {
             for (ParameterInfo info : paramInfoList) {
@@ -24,30 +23,32 @@ public class MethodFinder extends DnaFinder {
 
             }
         }
-        return new MethodFinder(invokeClass, methodName, paramType);
+        return new MethodFinder(invokeClass, methodName, paramType, isConstruct);
     }
 
-    public MethodFinder(Class<?> invokeClass, String methodName, List<String> paramType) {
-        super(invokeClass, methodName, paramType);
+    public MethodFinder(Class<?> invokeClass, String methodName, List<String> paramType, boolean isConstruct) {
+        super(invokeClass, methodName, paramType, isConstruct);
     }
-
 
     @Override
-    protected MethodWithReturnType getExactMethod(List<Method> methods) {
-     /*   if (DnaUtils.isEmpty(methods)) {
+    protected MethodInfo getExactMethod(List<Method> methods) {
+        if (DnaUtils.isEmpty(methods)) {
             return null;
         }
         boolean isExactMethod;
+        Method curMethod = null;
         for (Method method : methods) {
             Type[] types = method.getGenericParameterTypes();
             if (types == null && paramType == null) {
-                return method;
+                curMethod = method;
+                break;
             }
             if (types == null || paramType == null || types.length != paramType.size()) {
                 continue;
             }
             if (types.length == 0) {
-                return method;
+                curMethod = method;
+                break;
             }
             isExactMethod = true;
             for (int i = 0; i < types.length; i++) {
@@ -65,11 +66,11 @@ public class MethodFinder extends DnaFinder {
                 }
             }
             if (isExactMethod) {
-                return method;
+                curMethod = method;
+                break;
             }
         }
-        return null;*/
-        return null;
+        return curMethod != null ? createMethod(curMethod, curMethod.getReturnType().getName()) : null;
     }
 
     /**

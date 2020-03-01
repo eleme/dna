@@ -11,18 +11,23 @@ import java.util.List;
 
 public class MethodInfo {
 
+    private Method method;
 
-    Method method;
+    private List<Class<?>> args;
 
-    List<Class<?>> args;
+    private String returnType;
 
-    String returnType;
+    private boolean isProxy;
+
+    private boolean isConstruct;
 
 
-    public MethodInfo(Method method, List<Class<?>> args, String returnType) {
+    public MethodInfo(Method method, List<Class<?>> args, String returnType, boolean isProxy, boolean isConstruct) {
         this.method = method;
         this.args = args;
         this.returnType = returnType;
+        this.isProxy = isProxy;
+        this.isConstruct = isConstruct;
     }
 
     public String getReturnType() {
@@ -39,6 +44,14 @@ public class MethodInfo {
 
     public List<Class<?>> getArgs() {
         return args;
+    }
+
+    public boolean isProxy() {
+        return isProxy;
+    }
+
+    public boolean isConstruct() {
+        return isConstruct;
     }
 
     public void setArgs(List<Class<?>> args) {

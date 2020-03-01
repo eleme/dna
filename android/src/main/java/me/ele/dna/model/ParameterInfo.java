@@ -9,11 +9,6 @@ public class ParameterInfo {
 
     String type;
 
-    public ParameterInfo(String content) {
-        this(content, null);
-
-    }
-
     public ParameterInfo(String content, String type) {
         this.content = content;
         this.type = type;

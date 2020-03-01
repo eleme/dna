@@ -22,7 +22,7 @@ public class MethodTacker {
         this.info = info;
     }
 
-    public List<Object> getArgs(List<ParameterInfo> args) throws ArgsException {
+    public List<Object> getArgs(List<ParameterInfo> args, Object owner) throws ArgsException {
         if (info == null) {
             return null;
         }
@@ -30,35 +30,25 @@ public class MethodTacker {
         if (reflectArgs == null || args == null) {
             return null;
         }
-        if (reflectArgs.size() != args.size()) {
+        if (info.isProxy() && !info.isConstruct() && reflectArgs.size() != args.size() + 1) {
+            throw new ArgsException("proxy class Args size error");
+
+        }
+        if (!info.isProxy() && reflectArgs.size() != args.size()) {
             throw new ArgsException("Args size error");
         }
         List<Object> argsElements = new ArrayList<>();
-        for (int i = 0; i < reflectArgs.size(); i++) {
-            argsElements.add(isString(reflectArgs.get(i)) ? args.get(i).getContent() : GsonUtils.fromJson(args.get(i).getContent(), reflectArgs.get(i)));
-        }
-
-        return argsElements;
-    }
-
-    public List<Object> getReleaseArgs(List<ParameterInfo> args, Object owner, boolean isConstruct) throws ArgsException {
-        if (info == null) {
-            return null;
-        }
-        List<Class<?>> reflectArgs = info.getArgs();
-        if (reflectArgs == null || args == null) {
-            return null;
-        }
-        if (!isConstruct && reflectArgs.size() != args.size() + 1) {
-            throw new ArgsException("Args size error");
-        }
-        List<Object> argsElements = new ArrayList<>();
-        if (!isConstruct) {
+        if (info.isProxy() && !info.isConstruct()) {
             argsElements.add(0, owner);
+            for (int i = 1; i < reflectArgs.size(); i++) {
+                argsElements.add(isString(reflectArgs.get(i)) ? args.get(i - 1).getContent() : GsonUtils.fromJson(args.get(i - 1).getContent(), reflectArgs.get(i)));
+            }
+        } else {
+            for (int i = 0; i < reflectArgs.size(); i++) {
+                argsElements.add(isString(reflectArgs.get(i)) ? args.get(i).getContent() : GsonUtils.fromJson(args.get(i).getContent(), reflectArgs.get(i)));
+            }
         }
-        for (int i = 1; i < reflectArgs.size(); i++) {
-            argsElements.add(isString(reflectArgs.get(i)) ? args.get(i - 1).getContent() : GsonUtils.fromJson(args.get(i - 1).getContent(), reflectArgs.get(i)));
-        }
+
         return argsElements;
     }
 

@@ -40,8 +40,10 @@ class _MyAppState extends State<MyApp> {
             .newJavaObjectFromConstructor('me.ele.dna_example.DnaTest', null)
             .invoke(method: 'getDnaVersion')
             .invoke(method: 'getVersion');
-        //NativeObject version = context.newJavaObjectFromConstructor('java.lang.String', ["android "]).invoke(method: "concat", args: [versionId]);
-        context.returnVar = versionId; // 该句可省略
+        NativeObject version = context.newJavaObjectFromConstructor(
+            'java.lang.String',
+            ["android "]).invoke(method: "concat", args: [versionId]);
+        context.returnVar = version; // 该句可省略
       });
 
       // ObjCContext context = ObjCContext();

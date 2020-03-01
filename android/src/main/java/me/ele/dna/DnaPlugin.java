@@ -1,14 +1,11 @@
 package me.ele.dna;
 
-import android.util.Log;
-
 import me.ele.dna.model.DnaClassInfo;
 import me.ele.dna.model.ParameterInfo;
 import me.ele.dna.model.ResultInfo;
 import me.ele.dna.util.DnaUtils;
 import me.ele.dna.util.GsonUtils;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,22 +51,10 @@ public class DnaPlugin implements MethodCallHandler {
             try {
                 excuteNativeMethod(call, result);
             } catch (Exception e) {
-                Log.i("ceshi", "test" + e.getStackTrace());
                 e.printStackTrace();
             }
         } else {
             result.notImplemented();
-        }
-    }
-
-    private void test() {
-        try {
-            Method method = Class.forName("me.ele.dna_example.Dna_Class_Proxy").getMethod("Dna_Constructor_ProxyDnaTest");
-            Object o = method.invoke(null);
-            Log.i("ceshi", "test" + o.toString());
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -120,9 +105,9 @@ public class DnaPlugin implements MethodCallHandler {
             } else if (ownerObject instanceof DnaClassInfo) {
                 currentObject = ((DnaClassInfo) ownerObject).isConstrcut()
                         ? DnaClient.getClient().invokeConstructorMethod(((DnaClassInfo) ownerObject).getClassName(), parameterInfos)
-                        : DnaClient.getClient().invokeMethod(((DnaClassInfo) ownerObject).getClassName(), null, methodName, parameterInfos);
+                        : DnaClient.getClient().invokeMethod(false, ((DnaClassInfo) ownerObject).getClassName(), null, methodName, parameterInfos);
             } else if (ownerObject instanceof ResultInfo) {
-                currentObject = DnaClient.getClient().invokeMethod(((ResultInfo) ownerObject).getReturnType(), ((ResultInfo) ownerObject).getObject(), methodName, parameterInfos);
+                currentObject = DnaClient.getClient().invokeMethod(false, ((ResultInfo) ownerObject).getReturnType(), ((ResultInfo) ownerObject).getObject(), methodName, parameterInfos);
             } else {
                 throw new Exception("Abnormal Error");
             }
@@ -169,10 +154,10 @@ public class DnaPlugin implements MethodCallHandler {
                     paraContent = valueMap.get(paraId);
                     if (paraContent instanceof ParameterInfo) {
                         parameters.add((ParameterInfo) paraContent);
+                    } else if (paraContent instanceof ResultInfo) {
+                        parameters.add(new ParameterInfo(getExcuteParameter(((ResultInfo) paraContent).getObject()), ((ResultInfo) paraContent).getReturnType()));
                     } else if (paraContent != null) {
-                        parameters.add(new ParameterInfo(DnaUtils.isPrimitiveClass(paraContent.getClass())
-                                ? String.valueOf(paraContent)
-                                : GsonUtils.toJson(paraContent), paraContent.getClass().getName()));
+                        parameters.add(new ParameterInfo(getExcuteParameter(paraContent), paraContent.getClass().getName()));
                     }
                 } else if (o != null) {
                     parameters.add(new ParameterInfo(String.valueOf(o), o.getClass().getName()));
@@ -183,6 +168,12 @@ public class DnaPlugin implements MethodCallHandler {
             }
         }
         return parameters;
+    }
+
+    private String getExcuteParameter(Object result) {
+        return DnaUtils.isPrimitiveClass(result.getClass())
+                ? String.valueOf(result)
+                : GsonUtils.toJson(result);
     }
 
 
