@@ -14,6 +14,7 @@ import me.ele.dna.model.MethodTacker;
 import me.ele.dna.model.ParameterInfo;
 import me.ele.dna.model.ResultInfo;
 import me.ele.dna.util.DnaUtils;
+import me.ele.dna_annotations.DnaConstants;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -23,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import me.ele.dna_compiler.DnaConstants;
 
 /**
  * Author: Zhiqing.Zhang

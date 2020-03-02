@@ -8,7 +8,7 @@ import java.util.List;
 
 
 import static javax.lang.model.element.Modifier.PUBLIC;
-import static me.ele.dna_compiler.DnaConstants.PROXYCLASS;
+import static me.ele.dna_annotations.DnaConstants.PROXYCLASS;
 
 public class DnaClassFinder {
     private List<DnaElement> methodInfos = new ArrayList<>();

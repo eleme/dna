@@ -1,4 +1,4 @@
-package me.ele.dna_compiler;
+package me.ele.dna_annotations;
 
 public class DnaConstants {
     public static final String PROXYCLASS = "Dna_Class_Proxy";

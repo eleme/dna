@@ -35,7 +35,6 @@ android {
 
 dependencies {
     implementation "com.google.code.gson:gson:2.8.5"
-    compile project(path: ':dna-compiler')
     annotationProcessor project(':dna-compiler')
     implementation project(':dna-annotations')
 }

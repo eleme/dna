@@ -24,6 +24,7 @@ import javax.lang.model.type.TypeVariable;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
+import me.ele.dna_annotations.DnaConstants;
 import me.ele.dna_annotations.DnaMethod;
 
 import static javax.lang.model.element.ElementKind.CLASS;
