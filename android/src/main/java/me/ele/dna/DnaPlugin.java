@@ -51,7 +51,10 @@ public class DnaPlugin implements MethodCallHandler {
             try {
                 excuteNativeMethod(call, result);
             } catch (Exception e) {
-                e.printStackTrace();
+                DLog.e(e.getMessage());
+                if (DnaClient.getClient().getiResultCallBack() != null) {
+                    DnaClient.getClient().getiResultCallBack().onException(e);
+                }
             }
         } else {
             result.notImplemented();

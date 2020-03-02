@@ -1,2 +1,0 @@
-include ':app', ':dna'
-rootProject.name='DnaPluginTest'

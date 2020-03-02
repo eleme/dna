@@ -32,6 +32,8 @@ import me.ele.dna_compiler.DnaConstants;
  */
 
 public class DnaClient {
+    private IResultCallBack iResultCallBack;
+
     private static Map<String, Class<?>> classCahe = new HashMap<>();
 
     private static Map<String, Class<?>> classConstructiorCahe = new HashMap<>();
@@ -53,6 +55,14 @@ public class DnaClient {
 
     public DnaClient() {
 
+    }
+
+    public void setiResultCallBack(IResultCallBack iResultCallBack) {
+        this.iResultCallBack = iResultCallBack;
+    }
+
+    public IResultCallBack getiResultCallBack() {
+        return iResultCallBack;
     }
 
     /**
