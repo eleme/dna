@@ -11,7 +11,7 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 import static me.ele.dna_annotations.DnaConstants.PROXYCLASS;
 
 public class DnaClassFinder {
-    private List<DnaElement> methodInfos = new ArrayList<>();
+    private List<BaseDnaElement> methodInfos = new ArrayList<>();
 
     private String packageName;
 
@@ -19,7 +19,7 @@ public class DnaClassFinder {
         this.packageName = packageName;
     }
 
-    public void addMethodInfo(DnaElement info) {
+    public void addMethodInfo(BaseDnaElement info) {
         if (methodInfos == null) {
             methodInfos = new ArrayList<>();
         }
@@ -32,7 +32,7 @@ public class DnaClassFinder {
 
     public JavaFile createJavaFile() {
         TypeSpec.Builder classBuilder = TypeSpec.classBuilder(PROXYCLASS).addModifiers(PUBLIC);
-        for (DnaElement info : methodInfos) {
+        for (BaseDnaElement info : methodInfos) {
             classBuilder.addMethod(info.createMethod());
         }
 

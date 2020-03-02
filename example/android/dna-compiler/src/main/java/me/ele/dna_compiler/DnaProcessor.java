@@ -91,7 +91,7 @@ public class DnaProcessor extends AbstractProcessor {
         DnaPackageFinder finder = new DnaPackageFinder();
         String packageName;
         Set<? extends Element> annotatedElements = roundEnv.getElementsAnnotatedWith(DnaMethod.class);
-        DnaElement dnaElement;
+        BaseDnaElement dnaElement;
         for (Element element : annotatedElements) {
             if (!(element instanceof ExecutableElement) || (element.getKind() != METHOD && element.getKind() != CONSTRUCTOR)) {
                 throw new IllegalStateException("DnaMethod annotation must be on a method.");

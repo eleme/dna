@@ -11,7 +11,7 @@ import javax.lang.model.element.TypeElement;
 
 import me.ele.dna_annotations.DnaParamFieldList;
 
-public class DnaConstructorInfo extends DnaElement {
+public class DnaConstructorInfo extends BaseDnaElement {
 
 
     public DnaConstructorInfo(List<ParamInfo> paramterType, TypeElement enclosingElement, String methodName, String returnType) {

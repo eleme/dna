@@ -8,7 +8,7 @@ import java.util.List;
 
 import me.ele.dna.model.MethodInfo;
 
-public abstract class DnaFinder {
+public abstract class BaseDnaFinder {
     protected static final int BRIDGE = 0x40;
     protected static final int SYNTHETIC = 0x1000;
     protected static final int MODIFIERS_UN = Modifier.ABSTRACT | BRIDGE | SYNTHETIC;
@@ -21,7 +21,7 @@ public abstract class DnaFinder {
 
     protected boolean isConstruct;
 
-    public DnaFinder(Class<?> invokeClass, String methodName, List<String> paramType, boolean isConstruct) {
+    public BaseDnaFinder(Class<?> invokeClass, String methodName, List<String> paramType, boolean isConstruct) {
         this.invokeClass = invokeClass;
         this.methodName = methodName;
         this.paramType = paramType;

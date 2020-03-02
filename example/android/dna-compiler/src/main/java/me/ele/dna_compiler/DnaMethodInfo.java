@@ -11,7 +11,7 @@ import javax.lang.model.element.TypeElement;
 
 import me.ele.dna_annotations.DnaParamFieldList;
 
-public class DnaMethodInfo extends DnaElement {
+public class DnaMethodInfo extends BaseDnaElement {
 
     private boolean isReturn;
 

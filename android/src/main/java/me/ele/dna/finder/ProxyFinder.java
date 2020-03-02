@@ -10,7 +10,7 @@ import me.ele.dna.model.ParameterInfo;
 import me.ele.dna.util.DnaUtils;
 import me.ele.dna_annotations.DnaParamFieldList;
 
-public class ProxyFinder extends DnaFinder {
+public class ProxyFinder extends BaseDnaFinder {
 
     public static ProxyFinder build(Class<?> invokeClass, String methodName, List<ParameterInfo> paramInfoList, boolean isConstruct) {
         List<String> paramType = new ArrayList<>();

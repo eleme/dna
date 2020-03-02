@@ -13,7 +13,7 @@ import java.util.List;
  * Author: Zhiqing.Zhang
  * Description:
  */
-public class MethodFinder extends DnaFinder {
+public class MethodFinder extends BaseDnaFinder {
 
     public static MethodFinder build(Class<?> invokeClass, String methodName, List<ParameterInfo> paramInfoList, boolean isConstruct) {
         List<String> paramType = new ArrayList<>();

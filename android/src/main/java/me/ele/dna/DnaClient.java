@@ -6,7 +6,7 @@ import me.ele.dna.exception.AbnormalConstructorException;
 import me.ele.dna.exception.AbnormalMethodException;
 import me.ele.dna.exception.ArgsException;
 import me.ele.dna.finder.ConstructorFinder;
-import me.ele.dna.finder.DnaFinder;
+import me.ele.dna.finder.BaseDnaFinder;
 import me.ele.dna.finder.MethodFinder;
 import me.ele.dna.finder.ProxyFinder;
 import me.ele.dna.model.MethodInfo;
@@ -162,7 +162,7 @@ public class DnaClient {
             }
             classCahe.put(className, invokeClass);
         }
-        DnaFinder finder = isProxy ? ProxyFinder.build(invokeClass, methodName, param, isConstruct) : MethodFinder.build(invokeClass, methodName, param, isConstruct);
+        BaseDnaFinder finder = isProxy ? ProxyFinder.build(invokeClass, methodName, param, isConstruct) : MethodFinder.build(invokeClass, methodName, param, isConstruct);
         return finder.getReflectMethodFromClazz();
     }
 

@@ -11,7 +11,7 @@ public class DnaPackageFinder {
         infoList = new ArrayList<>();
     }
 
-    public void addMethodInfo(String packgeName, DnaElement methodInfo) {
+    public void addMethodInfo(String packgeName, BaseDnaElement methodInfo) {
         DnaClassFinder temProxy;
         if (infoList == null) {
             infoList = new ArrayList<>();

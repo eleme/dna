@@ -6,13 +6,13 @@ import java.util.List;
 
 import javax.lang.model.element.TypeElement;
 
-public abstract class DnaElement {
+public abstract class BaseDnaElement {
     protected List<ParamInfo> paramterType;
     protected TypeElement enclosingElement;
     protected String methodName;
     protected String returnType;
 
-    public DnaElement(List<ParamInfo> paramterType, TypeElement enclosingElement, String methodName, String returnType) {
+    public BaseDnaElement(List<ParamInfo> paramterType, TypeElement enclosingElement, String methodName, String returnType) {
         this.paramterType = paramterType;
         this.enclosingElement = enclosingElement;
         this.methodName = methodName;
