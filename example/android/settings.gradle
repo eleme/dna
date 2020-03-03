@@ -1,4 +1,4 @@
-include ':app'
+include ':app', ':dna-compiler', ':dna-annotations'
 
 def flutterProjectRoot = rootProject.projectDir.parentFile.toPath()
 

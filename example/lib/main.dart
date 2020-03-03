@@ -29,7 +29,7 @@ class _MyAppState extends State<MyApp> {
         version = context.classFromString("NSString").invoke(method: 'stringWithString:', args: ['iOS-']).invoke(method: 'stringByAppendingString:', args: [version]);
         context.returnVar = version; // 该句可省略
       }, (JAVAContext context) {
-        NativeObject versionId = context.newJavaObjectFromConstructor('com.example.dna_example.DnaTest', null).invoke(method: 'getDnaVersion').invoke(method: 'getVersion');
+        NativeObject versionId = context.newJavaObjectFromConstructor('me.ele.dna_example.DnaTest', null).invoke(method: 'getDnaVersion').invoke(method: 'getVersion');
         NativeObject version = context.newJavaObjectFromConstructor('java.lang.String', ["android "]).invoke(method: "concat", args: [versionId]);
         context.returnVar = version; // 该句可省略
       });

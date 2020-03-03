@@ -1,4 +1,4 @@
-group 'com.example.dna'
+group 'me.ele.dna'
 version '1.0-SNAPSHOT'
 
 buildscript {
@@ -34,5 +34,7 @@ android {
 }
 
 dependencies {
-    implementation  "com.google.code.gson:gson:2.8.5"
+    implementation "com.google.code.gson:gson:2.8.5"
+    annotationProcessor project(':dna-compiler')
+    implementation project(':dna-annotations')
 }
