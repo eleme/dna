@@ -1,5 +1,6 @@
 # dna
 ### [中文文档👉](./README_CN.md)
+### [相关文章](https://juejin.im/post/5e5f1d41518825495b29a05b)
 A lightweight dart to native super channel plugin, You can use it to invoke any native code directly in dart code.
 
 Supported Platform(Language):
@@ -193,11 +194,6 @@ NativeObject version = context
             .newJavaObjectFromConstructor('java.lang.String', ["android "])
 
 ```
-
-> **Known problems in Android system, waiting to be solved**
-
-> - Currently, it is not supported in projects with code confusion;
-> - Generics are not supported.
 
 ### Fast organization of dual platform code
 
