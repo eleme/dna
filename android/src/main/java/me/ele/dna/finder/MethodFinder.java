@@ -59,7 +59,7 @@ public class MethodFinder extends BaseDnaFinder {
                     String typeName = ((Class) types[i]).isPrimitive()
                             ? wrapper(((Class) types[i]).getName())
                             : ((Class) types[i]).getName();
-                    if (!(paramType.get(i).equals(typeName))) {
+                    if (!(isEqualType(paramType.get(i), typeName))) {
                         isExactMethod = false;
                         break;
                     }
@@ -73,43 +73,5 @@ public class MethodFinder extends BaseDnaFinder {
         return curMethod != null ? createMethod(curMethod, curMethod.getReturnType().getName()) : null;
     }
 
-    /**
-     * java.lang.Boolean#TYPE
-     * java.lang.Character#TYPE
-     * java.lang.Byte#TYPE
-     * java.lang.Short#TYPE
-     * java.lang.Integer#TYPE
-     * java.lang.Long#TYPE
-     * java.lang.Float#TYPE
-     * java.lang.Double#TYPE
-     * java.lang.Void#TYPE
-     *
-     * @param name
-     * @return
-     */
-    private String wrapper(String name) {
-        switch (name) {
-            case "boolean":
-                return Boolean.class.getName();
-            case "char":
-                return Character.class.getName();
-            case "byte":
-                return Byte.class.getName();
-            case "short":
-                return Short.class.getName();
-            case "int":
-                return Integer.class.getName();
-            case "long":
-                return Long.class.getName();
-            case "float":
-                return Float.class.getName();
-            case "double":
-                return Double.class.getName();
-            case "void":
-                return Void.class.getName();
-            default:
-                return null;
-        }
-    }
 
 }

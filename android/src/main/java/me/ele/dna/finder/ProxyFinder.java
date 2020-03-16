@@ -51,7 +51,8 @@ public class ProxyFinder extends BaseDnaFinder {
             isExactMethod = true;
             for (int i = 0; i < params.length; i++) {
                 if (paramType.get(i) != null) {
-                    if (paramType.get(i).equals(params[i])) {
+                    String typeName = wrapper(params[i]) != null ? wrapper(params[i]) : params[i];
+                    if (!isEqualType(paramType.get(i), typeName)) {
                         isExactMethod = false;
                         break;
                     }
