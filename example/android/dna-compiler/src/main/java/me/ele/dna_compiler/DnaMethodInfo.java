@@ -36,7 +36,7 @@ public class DnaMethodInfo extends BaseDnaElement {
     public MethodSpec createMethod() {
         MethodSpec.Builder mehthodBuidler;
         mehthodBuidler = MethodSpec.methodBuilder(getClassName() + "_" + methodName).addModifiers(Modifier.PUBLIC, Modifier.STATIC).
-                returns(isReturn ? Object.class : Void.class);
+                returns(isReturn ? Object.class : void.class);
         String parament = "";
         String annotionSpc = "{";
         String[] annotionList = new String[]{};

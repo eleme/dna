@@ -1,5 +1,7 @@
 package me.ele.dna.finder;
 
+import android.text.TextUtils;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -7,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import me.ele.dna.model.MethodInfo;
+import me.ele.dna.util.DnaUtils;
 
 public abstract class BaseDnaFinder {
     protected static final int BRIDGE = 0x40;
@@ -54,6 +57,65 @@ public abstract class BaseDnaFinder {
             methodInfo = new MethodInfo(method, Arrays.asList(parameterTypes), returnType, this instanceof ProxyFinder, isConstruct);
         }
         return methodInfo;
+    }
+
+    /**
+     * java.lang.Boolean#TYPE
+     * java.lang.Character#TYPE
+     * java.lang.Byte#TYPE
+     * java.lang.Short#TYPE
+     * java.lang.Integer#TYPE
+     * java.lang.Long#TYPE
+     * java.lang.Float#TYPE
+     * java.lang.Double#TYPE
+     * java.lang.Void#TYPE
+     *
+     * @param name
+     * @return
+     */
+    protected String wrapper(String name) {
+        switch (name) {
+            case "boolean":
+                return Boolean.class.getName();
+            case "char":
+                return Character.class.getName();
+            case "byte":
+                return Byte.class.getName();
+            case "short":
+                return Short.class.getName();
+            case "int":
+                return Integer.class.getName();
+            case "long":
+                return Long.class.getName();
+            case "float":
+                return Float.class.getName();
+            case "double":
+                return Double.class.getName();
+            case "void":
+                return Void.class.getName();
+            default:
+                return null;
+        }
+    }
+
+    protected boolean isEqualType(String dartType, String javaType) {
+        if (TextUtils.isEmpty(dartType) && TextUtils.isEmpty(javaType)) {
+            return true;
+        }
+
+        if (TextUtils.isEmpty(dartType) || TextUtils.isEmpty(javaType)) {
+            return false;
+        }
+        if (javaType.equals(Float.class.getName()) && dartType.equals(Double.class.getName())) {
+            return true;
+        }
+        if (javaType.equals(Long.class.getName()) && dartType.equals(Integer.class.getName())) {
+            return true;
+        }
+        if (javaType.equals(Short.class.getName()) && dartType.equals(Integer.class.getName())) {
+            return true;
+        }
+        return javaType.equals(dartType);
     }
 
 }
