@@ -1,7 +1,7 @@
 # dna
 ### [中文文档👉](./README_CN.md)
 ### [相关文章](https://juejin.im/post/5e5f1d41518825495b29a05b)
-A lightweight dart to native super channel plugin, You can use it to invoke any native code directly in dart code.
+dart native access. A lightweight dart to native super channel plugin, You can use it to invoke any native code directly in dart code.
 
 Supported Platform(Language):
 
