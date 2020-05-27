@@ -65,7 +65,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'com.google.code.gson:gson:2.8.5'
-    annotationProcessor project(':dna-compiler')
-    implementation project(':dna-annotations')
+    implementation 'me.ele:dna-annotations:1.2.0'
+    annotationProcessor 'me.ele:dna-compiler:1.2.0'
 
 }

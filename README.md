@@ -30,11 +30,18 @@ The primary scenario:
 	```
 	import 'package:dna/dna.dart';
 	```
-3. Add gradle dependency in Android project:
+3. add gradle dependency in Android project:
 
 	```
 	implementation 'me.ele:dna-annotations:1.2.0'
     annotationProcessor 'me.ele:dna-compiler:1.2.0'
+	```
+4. add following conconfiguration in Android project's proguard-rules
+
+    ```
+	-keep class **.Dna_Class_Proxy { *; }
+    -keep class me.ele.dna_compiler.**  { *; }
+    -keep class me.ele.dna.**  { *; }
 	```
 
 ## Usage
