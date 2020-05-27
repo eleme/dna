@@ -30,7 +30,12 @@ The primary scenario:
 	```
 	import 'package:dna/dna.dart';
 	```
+3. Add gradle dependency in Android project:
 
+	```
+	implementation 'me.ele:dna-annotations:1.2.0'
+    annotationProcessor 'me.ele:dna-compiler:1.2.0'
+	```
 
 ## Usage
 

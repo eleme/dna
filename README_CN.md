@@ -20,6 +20,15 @@ dependencies:
 
 ```
 import 'package:dna/dna.dart';
+
+```
+
+3.在android项目中引入依赖
+
+```
+implementation 'me.ele:dna-annotations:1.2.0'
+annotationProcessor 'me.ele:dna-compiler:1.2.0'
+
 ```
 
 
