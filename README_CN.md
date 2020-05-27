@@ -30,7 +30,16 @@ implementation 'me.ele:dna-annotations:1.2.0'
 annotationProcessor 'me.ele:dna-compiler:1.2.0'
 
 ```
+使用模块化开发时，可以在子模块中单独引入dna-annotations包，从而获得注解方法的能力
 
+4.在android项目中加入反混淆配置
+
+```
+  -keep class **.Dna_Class_Proxy { *; }
+  -keep class me.ele.dna_compiler.**  { *; }
+  -keep class me.ele.dna.**  { *; }
+
+```
 
 # 使用介绍
 `dna` 在`Dart代码`中:
